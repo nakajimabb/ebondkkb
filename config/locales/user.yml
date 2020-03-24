@@ -1,0 +1,75 @@
+ja:
+  activerecord:
+    models:
+      user: '会員'
+    attributes:
+      user:
+        id: 'Id'
+        email: 'Eメール'
+        code: '社員番号'
+        sekisyo: '関所'
+        user_type: '種別'
+        name: '氏名'
+        first_name: '名'
+        last_name: '氏'
+        sex: '性別'
+        kana: 'シメイ'
+        first_name_kana: 'メイ'
+        last_name_kana: 'シ'
+        birthday: '誕生日'
+        age: '年齢'
+        tel: '電話番号'
+        mobile: '携帯電話'
+        fax: 'FAX番号'
+        zip: '郵便番号'
+        prefecture: '都道府県'
+        city: '市区町村'
+        street: '以降の住所'
+        building: '建物名'
+        bio: '肩書き'
+        avatar: 'アバター'
+        entered_on: '入社日'
+        started_on: '開始日'
+        finished_on: '終了日'
+        shift_number1: 'シフト番号①'
+        shift_number2: 'シフト番号②'
+        section: '区分'
+        expense_section: '経費区分'
+        password: 'パスワード'
+        password_confirmation: 'パスワード（確認用）'
+  enum:
+    user:
+      user_type:
+        normal: "通常社員"
+        shop: "店舗"
+        admin: "管理者"
+      sex:
+        male: '男性'
+        female: '女性'
+      section:
+        weeds: 'ウィーズ'
+        leaf: 'リーフ'
+        lunar: 'ルナ'
+        adviser: 'アドバイザー'
+      expense_section:
+        expense_none: 'なし'
+        expense_weeds: 'ウィーズ'
+        expense_leaf: 'リーフ'
+        expense_lunar: 'ルナ'
+  views:
+    user:
+      basic: '基本情報'
+      roles: '社員種別'
+      comment: 'コメント'
+      location: '住所・電話'
+      members: '自分の社員'
+      misc: 'その他'
+      profile: 'プロフィール'
+      list: "社員管理"
+      page_of: ' のページ'
+      edit_self: '設定'
+      address: '住所'
+      back: '一覧へ戻る'
+      new: '社員登録'
+      photo: '写真'
+      add_user: '社員を追加'

@@ -11,5 +11,11 @@
 
   <body>
     <%= yield %>
+    <footer>
+      <% if user_signed_in? && !@is_menu %>
+        <%= current_user.name_with_code %> |
+        <%= link_to "ログアウト", destroy_user_session_path, method: :delete, :class => 'navbar-link', :target => '_top'  %>
+      <% end %>
+    </footer>
   </body>
 </html>

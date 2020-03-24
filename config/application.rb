@@ -31,5 +31,18 @@ module Ebondkkb
 
     # Don't generate system test files.
     config.generators.system_tests = nil
+
+
+    # アプリケーションが対応している言語のホワイトリスト(ja = 日本語, en = 英語)
+    config.i18n.available_locales = %i(ja en)
+
+    # 上記の対応言語以外の言語が指定された場合、エラーとするかの設定
+    config.i18n.enforce_available_locales = true
+
+    # デフォルトの言語設定
+    config.i18n.default_locale = :ja
+
+    config.time_zone = 'Tokyo'
+    config.active_record.default_timezone = :local
   end
 end

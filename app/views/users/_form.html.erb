@@ -1,0 +1,59 @@
+<%= form_with(model: user, local: true) do |form| %>
+  <% if user.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(user.errors.count, "error") %> prohibited this user from being saved:</h2>
+
+      <ul>
+        <% user.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :code %>
+    <%= form.text_field :code %>
+  </div>
+
+  <div class="field">
+    <%= form.label :name %>
+    <%= form.text_field :last_name %>
+    <%= form.text_field :first_name %>
+  </div>
+
+  <div class="field">
+    <%= form.label :kana %>
+    <%= form.text_field :last_kana %>
+    <%= form.text_field :first_kana %>
+  </div>
+
+  <div class="field">
+    <%= form.label :email %>
+    <%= form.text_field :email, autocomplete: 'new-password' %>
+  </div>
+
+  <div class="field">
+    <%= form.label :prefecture %>
+    <%= form.select :prefecture, User.prefectures.map { |k, v| [t("prefecture.#{k}"), k] }, {} %>
+  </div>
+
+  <div class="field">
+    <%= form.label :sex %>
+    <%= form.select :sex, User.sexes.map { |k, v| [t("enum.user.sex.#{k}"), k] }, {} %>
+  </div>
+
+  <div class="field">
+    <%= form.label :password, autocomplete: 'new-password' %>
+    <%= form.password_field :password, autocomplete: 'new-password' %>
+  </div>
+
+  <div class="field">
+    <%= form.label :password %>
+    <%= form.password_field :password_confirmation %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>
