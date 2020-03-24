@@ -3,9 +3,17 @@
 // a relevant structure within app/javascript and only use these pack files to reference
 // that code so it'll be compiled.
 
-require("@rails/ujs").start()
-require("@rails/activestorage").start()
-require("channels")
+require("@rails/ujs").start();
+require("@rails/activestorage").start();
+require("channels");
+
+require("admin-lte/dist/css/adminlte");
+require("admin-lte/plugins/fontawesome-free/css/all");
+const images = require.context('../images/', true);
+
+require("admin-lte/plugins/jquery/jquery");
+require("admin-lte/plugins/bootstrap/js/bootstrap");
+require("admin-lte/dist/js/adminlte");
 
 
 // Uncomment to copy all static images under ../images to the output folder and reference
