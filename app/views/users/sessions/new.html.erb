@@ -25,15 +25,15 @@
 
       <%= form_for(resource, as: resource_name, url: session_path(resource_name)) do |f| %>
         <div class="input-group mb-3">
-          <%= f.email_field :email, autofocus: true, placeholder: 'Email', autocomplete: "email", class: "form-control" %>
+          <%= f.text_field :code, autofocus: true, autocomplete: "new-password", placeholder: '社員番号', class: "form-control" %>
           <div class="input-group-append">
             <div class="input-group-text">
-              <span class="fas fa-envelope"></span>
+              <span class="fas fa-user"></span>
             </div>
           </div>
         </div>
         <div class="input-group mb-3">
-          <%= f.password_field :password, autocomplete: "new-password", placeholder:"Password", class: "form-control" %>
+          <%= f.password_field :password, autocomplete: "new-password", placeholder:"パスワード", class: "form-control" %>
           <div class="input-group-append">
             <div class="input-group-text">
               <span class="fas fa-lock"></span>
