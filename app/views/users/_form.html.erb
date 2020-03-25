@@ -11,49 +11,140 @@
     </div>
   <% end %>
 
-  <div class="field">
-    <%= form.label :code %>
-    <%= form.text_field :code %>
-  </div>
+  <div class="row">
+    <div class="col-md-4">
+      <div class="card card-secondary">
+        <div class="card-header">
+          <h3 class="card-title">基本情報</h3>
+        </div>
+        <div class="card-body px-1 py-2">
+          <table>
+            <colgroup>
+              <col width="30%">
+              <col width="70%">
+            </colgroup>
+            <tbody>
+              <tr>
+                <th class="px-2 py-0"><%= form.label :code, class: 'col-form-label font-weight-normal text-sm' %></th>
+                <td class="px-2 py-0"><%= form.text_field :code, class: 'form-control form-control-sm' %></td>
+              </tr>
+              <tr>
+                <th class="px-2 py-0"><%= form.label :name, class: 'col-form-label font-weight-normal text-sm' %></th>
+                <td class="px-2 py-0">
+                  <div class="row">
+                    <div class="col-md-6">
+                      <%= form.text_field :last_name, class: 'form-control form-control-sm' %>
+                    </div>
+                    <div class="col-md-6">
+                      <%= form.text_field :first_name, class: 'form-control form-control-sm' %>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th class="px-2 py-0"><%= form.label :email, class: 'col-form-label font-weight-normal text-sm' %></th>
+                <td class="px-2 py-0"><%= form.text_field :email, class: 'form-control form-control-sm' %></td>
+              </tr>
+              <tr>
+                <th class="px-2 py-0"><%= form.label :sex, class: 'col-form-label font-weight-normal text-sm' %></th>
+                <td class="px-2 py-0">
+                  <%= form.select :sex, User.sexes_i18n.invert, {}, class: 'form-control form-control-sm' %>
+                </td>
+              </tr>
+              <tr>
+                <th class="px-2 py-0"><%= form.label :prefecture, class: 'col-form-label font-weight-normal text-sm' %></th>
+                <td class="px-2 py-0">
+                  <%= form.select :prefecture, prefecture_options, {include_blank: true}, class: 'form-control form-control-sm' %>
+                </td>
+              </tr>
+              <tr>
+                <th class="px-2 py-0"><%= form.label :birthday, class: 'col-form-label font-weight-normal text-sm' %></th>
+                <td class="px-2 py-0">
+                  <%= form.date_field :birthday, class: 'form-control form-control-sm' %>
+                </td>
+              </tr>
+              <tr>
+                <th class="px-2 py-0"><%= form.label :password, class: 'col-form-label font-weight-normal text-sm' %></th>
+                <td class="px-2 py-0">
+                  <%= form.password_field :password, autocomplete: 'new-password', class: 'form-control form-control-sm' %>
+                </td>
+              </tr>
+              <tr>
+                <th class="px-2 py-0"><%= form.label :password_confirmation, class: 'col-form-label font-weight-normal text-sm' %></th>
+                <td class="px-2 py-0">
+                  <%= form.password_field :password_confirmation, autocomplete: 'new-password', class: 'form-control form-control-sm' %>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-  <div class="field">
-    <%= form.label :name %>
-    <%= form.text_field :last_name %>
-    <%= form.text_field :first_name %>
-  </div>
+    <div class="col-md-4">
+      <div class="card card-secondary">
+        <div class="card-header">
+          <h3 class="card-title">基本情報2</h3>
+        </div>
+        <div class="card-body px-1 py-2">
+          <table>
+            <colgroup>
+              <col width="30%">
+              <col width="70%">
+            </colgroup>
+            <tbody>
+              <tr>
+                <th class="px-2 py-0"><%= form.label :shift_number1, class: 'col-form-label font-weight-normal text-sm' %></th>
+                <td class="px-2 py-0"><%= form.text_field :shift_number1, class: 'form-control form-control-sm' %></td>
+              </tr>
+              <tr>
+                <th class="px-2 py-0"><%= form.label :shift_number2, class: 'col-form-label font-weight-normal text-sm' %></th>
+                <td class="px-2 py-0"><%= form.text_field :shift_number2, class: 'form-control form-control-sm' %></td>
+              </tr>
+              <tr>
+                <th class="px-2 py-0"><%= form.label :tel, class: 'col-form-label font-weight-normal text-sm' %></th>
+                <td class="px-2 py-0"><%= form.text_field :tel, class: 'form-control form-control-sm' %></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-  <div class="field">
-    <%= form.label :kana %>
-    <%= form.text_field :last_kana %>
-    <%= form.text_field :first_kana %>
-  </div>
+    <div class="col-md-4">
+      <div class="card card-secondary">
+        <div class="card-header">
+          <h3 class="card-title">基本情報3</h3>
+        </div>
+        <div class="card-body px-1 py-2">
+          <table>
+            <colgroup>
+              <col width="30%">
+              <col width="70%">
+            </colgroup>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+      </div>
 
-  <div class="field">
-    <%= form.label :email %>
-    <%= form.text_field :email, autocomplete: 'new-password' %>
-  </div>
+      <div class="card card-secondary">
+        <div class="card-header">
+          <h3 class="card-title">追加情報</h3>
+        </div>
+        <div class="card-body px-1 py-2">
+          <table>
+            <colgroup>
+              <col width="30%">
+              <col width="70%">
+            </colgroup>
+            <tbody>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
-  <div class="field">
-    <%= form.label :prefecture %>
-    <%= form.select :prefecture, User.prefectures.map { |k, v| [t("prefecture.#{k}"), k] }, {} %>
   </div>
-
-  <div class="field">
-    <%= form.label :sex %>
-    <%= form.select :sex, User.sexes.map { |k, v| [t("enum.user.sex.#{k}"), k] }, {} %>
-  </div>
-
-  <div class="field">
-    <%= form.label :password, autocomplete: 'new-password' %>
-    <%= form.password_field :password, autocomplete: 'new-password' %>
-  </div>
-
-  <div class="field">
-    <%= form.label :password %>
-    <%= form.password_field :password_confirmation %>
-  </div>
-
-  <div class="actions">
-    <%= form.submit %>
-  </div>
+  <%= form.submit class: 'btn btn-primary my-2' %>
 <% end %>

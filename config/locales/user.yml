@@ -29,6 +29,7 @@ ja:
         bio: '肩書き'
         avatar: 'アバター'
         entered_on: '入社日'
+        retired_on: '退社日'
         started_on: '開始日'
         finished_on: '終了日'
         shift_number1: 'シフト番号①'
@@ -37,7 +38,7 @@ ja:
         expense_section: '経費区分'
         password: 'パスワード'
         password_confirmation: 'パスワード（確認用）'
-  enum:
+  enums:
     user:
       user_type:
         normal: "通常社員"

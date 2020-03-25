@@ -1,0 +1,30 @@
+ja:
+  views:
+    app:
+      add: '追加する'
+      age_year: '歳'
+      cancel: 'キャンセル'
+      close: '閉じる'
+      create: '登録する'
+      exact: '完全一致'
+      new: '新規作成'
+      edit: '編集'
+      save: '保存'
+      delete: '削除'
+      show: '詳細'
+      search: '検索'
+      update: '更新'
+      rows_per_page: '件数／ページ'
+      list: '一覧'
+      save_done: '保存しました。'
+      notification: 'お知らせ'
+      required: '必須'
+      back: '戻る'
+      back_to: '{{page}}へ戻る'
+      human_number_unit: '人'
+      none: 'なし'
+      half_width_digit: '半角数字'
+      are_you_sure: 'よろしいですか？'
+  errors:
+    app:
+      occurred: 'エラーが発生しました。'

@@ -34,8 +34,6 @@ ActiveRecord::Schema.define(version: 2020_03_25_014515) do
   create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
-    t.string "reset_password_token"
-    t.datetime "reset_password_sent_at"
     t.datetime "remember_created_at"
     t.integer "sign_in_count", default: 0, null: false
     t.datetime "current_sign_in_at"
@@ -62,8 +60,8 @@ ActiveRecord::Schema.define(version: 2020_03_25_014515) do
     t.string "shift_number2", limit: 16, default: "", null: false
     t.integer "section", limit: 1
     t.integer "expense_section", limit: 1
-    t.integer "user_type", limit: 1, default: 1, null: false
     t.boolean "sekisyo", default: false, null: false
+    t.boolean "shop", default: false, null: false
     t.string "zip", limit: 10, default: "", null: false
     t.integer "prefecture", limit: 2
     t.string "city", limit: 16, default: "", null: false
@@ -73,7 +71,6 @@ ActiveRecord::Schema.define(version: 2020_03_25_014515) do
     t.string "mobile", limit: 16, default: "", null: false
     t.string "fax", limit: 16, default: "", null: false
     t.index ["email"], name: "index_users_on_email", unique: true
-    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
 

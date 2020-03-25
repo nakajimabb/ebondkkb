@@ -5,6 +5,19 @@ class UsersController < ApplicationController
   # GET /users.json
   def index
     @users = User.all
+    if params[:search].present?
+      @users = @users.search(params[:search])
+    end
+    if params[:retired].blank?
+      @users = @users.non_retired(nil, false)
+    end
+    if params[:shop].blank?
+      @users = @users.where(shop: false)
+    end
+    if params[:prefecture].present?
+      @users = @users.where(prefecture: params[:prefecture])
+    end
+    @users = @users.page(params[:page])
   end
 
   # GET /users/1
@@ -28,7 +41,7 @@ class UsersController < ApplicationController
 
     respond_to do |format|
       if @user.save
-        format.html { redirect_to @user, notice: 'User was successfully created.' }
+        format.html { redirect_to users_path, notice: 'User was successfully created.' }
         format.json { render :show, status: :created, location: @user }
       else
         format.html { render :new }
@@ -41,8 +54,13 @@ class UsersController < ApplicationController
   # PATCH/PUT /users/1.json
   def update
     respond_to do |format|
-      if @user.update(user_params)
-        format.html { redirect_to @user, notice: 'User was successfully updated.' }
+      user_p = user_params
+      if user_p[:password].blank? && user_p[:password_confirmation].blank?
+        user_p.delete(:password)
+        user_p.delete(:password_confirmation)
+      end
+      if @user.update(user_p)
+        format.html { redirect_to users_path, notice: 'User was successfully updated.' }
         format.json { render :show, status: :ok, location: @user }
       else
         format.html { render :edit }
@@ -69,6 +87,6 @@ class UsersController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def user_params
-    params.require(:user).permit(:code, :email, :first_name, :last_name, :first_name_kana, :last_name_kana, :sex, :birthday, :prefecture, :password, :password_confirmation)
+    params.require(:user).permit(User::REGISTRABLE_ATTRIBUTES)
   end
 end

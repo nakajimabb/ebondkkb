@@ -1,6 +1,11 @@
-<h1>Editing User</h1>
+<% content_for(:title) { '社員編集' } %>
+
+<% content_for(:breadcrumb) do %>
+  <ol class="breadcrumb float-sm-right">
+    <li class="breadcrumb-item"><a href="/users">社員関連</a></li>
+    <li class="breadcrumb-item"><%= link_to @user.name, @user %></small></li>
+    <li class="breadcrumb-item active">編集</li>
+  </ol>
+<% end %>
 
 <%= render 'form', user: @user %>
-
-<%= link_to 'Show', @user %> |
-<%= link_to 'Back', users_path %>

@@ -15,8 +15,8 @@ class AddEtcToUser < ActiveRecord::Migration[6.0]
     add_column :users, :shift_number2, :string, null: false, default: '', limit: 16
     add_column :users, :section, :tinyint
     add_column :users, :expense_section, :tinyint
-    add_column :users, :user_type, :tinyint, null: false, default: 1
     add_column :users, :sekisyo, :boolean, null: false, default: false
+    add_column :users, :shop, :boolean, null: false, default: false
     add_column :users, :zip, :string, null: false, default: '', limit: 10
     add_column :users, :prefecture, :smallint
     add_column :users, :city, :string, null: false, default: '', limit: 16
