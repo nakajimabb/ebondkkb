@@ -32,6 +32,11 @@ module Ebondkkb
     # Don't generate system test files.
     config.generators.system_tests = nil
 
+    # 各種ファイルを作成させない
+    config.generators.javascripts = false
+    config.generators.assets = false
+    config.generators.helper = false
+    config.generators.test_framework = false
 
     # アプリケーションが対応している言語のホワイトリスト(ja = 日本語, en = 英語)
     config.i18n.available_locales = %i(ja en)
