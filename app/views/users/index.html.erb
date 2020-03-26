@@ -14,12 +14,12 @@
       <%= f.text_field :search, value: params[:search], placeholder: '氏名・カナ・番号', class: 'form-control form-control-navbar mr-1 ascii' %>
       <%= f.select :prefecture, options_for_select(prefecture_options, params[:prefecture]),
                    {prompt: '--都道府県--'}, class: 'form-control form-control-navbar mr-1 ascii' %>
-      <div class="form-check mr-1 pt-1">
-        <%= check_box_tag :retired, true, params[:retired] == 'true', class: 'form-check-input' %>
+      <div class="form-check p-1">
+        <%= f.check_box :retired, {checked: params[:retired] == 'true'}, true, false %>
         <label class="form-check-label" for="retired"><small>退職者を表示</small></label>
       </div>
-      <div class="form-check mr-1 pt-1">
-        <%= check_box_tag :shop, true, params[:shop] == 'true', class: 'form-check-input' %>
+      <div class="form-check p-1">
+        <%= f.check_box :shop, {checked: params[:shop] == 'true'}, true, false %>
         <label class="form-check-label" for="shop"><small>店舗を表示</small></label>
       </div>
       <%= f.submit view_i18n('search'), class: 'btn btn-outline-secondary btn-sm mr-3' %>

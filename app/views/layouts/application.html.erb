@@ -215,6 +215,11 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
   <!-- Content Wrapper. Contains page content -->
   <div class="content-wrapper">
+    <!-- Flash message -->
+    <% classes = {notice: 'success', alert: 'danger'} %>
+    <% flash.each do |message_type, message| %>
+      <div class="alert alert-<%= classes[message_type.to_sym] %> px-2 py-1"><%= message %></div>
+    <% end %>
     <!-- Content Header (Page header) -->
     <div class="content-header">
       <div class="container-fluid">
