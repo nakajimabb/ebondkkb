@@ -16,7 +16,7 @@ const TableForm = ({ title, data, per_page = 10 }) => {
 
   const addElem = (e) => {
     e.preventDefault();
-    setArray([...array, { user_id: '', user_name: '' }]);
+    setArray([...array, { user_id: '', user_name: '', _modify: true }]);
     setEditIndex(array.length);
 
     const page_count2 = Math.ceil((array.length + 1) / per_page);
@@ -34,7 +34,11 @@ const TableForm = ({ title, data, per_page = 10 }) => {
 
   const onDelete = (index) => (e) => {
     if (array[index].id) {
-      const new_data = { ...array[index], _destroy: !array[index]._destroy };
+      const new_data = {
+        ...array[index],
+        _destroy: !array[index]._destroy,
+        _modify: true,
+      };
       setArray([...array.slice(0, index), new_data, ...array.slice(index + 1)]);
     } else {
       let new_array = [...array];
@@ -45,7 +49,12 @@ const TableForm = ({ title, data, per_page = 10 }) => {
   };
 
   const onSelectChange = (index) => (e) => {
-    const new_data = { ...array[index], user_id: e.value, user_name: e.label };
+    const new_data = {
+      ...array[index],
+      user_id: e.value,
+      user_name: e.label,
+      _modify: true,
+    };
     setArray([...array.slice(0, index), new_data, ...array.slice(index + 1)]);
   };
 
@@ -78,23 +87,27 @@ const TableForm = ({ title, data, per_page = 10 }) => {
                 style={elem._destroy ? deleteStyles : null}
               >
                 <td className={elem.error ? 'pt-2 pb-0' : ''}>
-                  <input
-                    type="hidden"
-                    name={`group[group_users_attributes][${index}][id]`}
-                    value={elem.id ? elem.id : ''}
-                  />
-                  <input
-                    type="hidden"
-                    name={`group[group_users_attributes][${index}][user_id]`}
-                    value={elem.user_id ? elem.user_id : ''}
-                  />
-                  {elem._destroy ? (
-                    <input
-                      type="hidden"
-                      name={`group[group_users_attributes][${index}][_destroy]`}
-                      value={1}
-                    />
-                  ) : null}
+                  {elem._modify && (
+                    <>
+                      <input
+                        type="hidden"
+                        name={`group[group_users_attributes][${index}][id]`}
+                        value={elem.id ? elem.id : ''}
+                      />
+                      <input
+                        type="hidden"
+                        name={`group[group_users_attributes][${index}][user_id]`}
+                        value={elem.user_id ? elem.user_id : ''}
+                      />
+                      {elem._destroy && (
+                        <input
+                          type="hidden"
+                          name={`group[group_users_attributes][${index}][_destroy]`}
+                          value={1}
+                        />
+                      )}
+                    </>
+                  )}
                   {index == editIndex ? (
                     <SelectUser
                       value={{ label: elem.user_name, value: elem.user_id }}

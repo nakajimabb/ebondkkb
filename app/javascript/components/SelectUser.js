@@ -5,10 +5,10 @@ import axios from 'axios';
 import { name_with_code } from '../tools/name_with_code';
 import env from '../environment';
 
-const SelectUser = ({ name, value, onChange }) => {
+const SelectUser = ({ name, value, shop = true, onChange }) => {
   const promiseOptions = (input) =>
     new Promise((resolve) => {
-      const url = `${env.API_ORIGIN}/users.json?search=${input}`;
+      const url = `${env.API_ORIGIN}/users.json?search=${input}&shop=${shop}`;
       axios.get(url).then((response) => {
         const options = response.data.map((user) => ({
           label: name_with_code(user),

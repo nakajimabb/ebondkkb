@@ -15,10 +15,12 @@ class GroupsController < ApplicationController
   # GET /groups/new
   def new
     @group = Group.new
+    @group_users = GroupUser.none
   end
 
   # GET /groups/1/edit
   def edit
+    @group_users = group_users(@group, true)
   end
 
   # POST /groups
@@ -31,6 +33,7 @@ class GroupsController < ApplicationController
         format.html { redirect_to groups_path, notice: 'Group was successfully created.' }
         format.json { render :show, status: :created, location: @group }
       else
+        @group_users = group_users(@group, false)
         format.html { render :new }
         format.json { render json: @group.errors, status: :unprocessable_entity }
       end
@@ -45,6 +48,7 @@ class GroupsController < ApplicationController
         format.html { redirect_to groups_path, notice: 'Group was successfully updated.' }
         format.json { render :show, status: :ok, location: @group }
       else
+        @group_users = group_users(@group, false)
         format.html { render :edit }
         format.json { render json: @group.errors, status: :unprocessable_entity }
       end
@@ -62,6 +66,12 @@ class GroupsController < ApplicationController
   end
 
   private
+    def group_users(group, eager_load)
+      result = group.group_users
+      result = result.eager_load(:user) if eager_load
+      result.map{ |gu| {id: gu.id, user_id: gu.user_id, user_name: gu.user&.name_with_code, error: gu.errors.full_messages.join(',') } }
+    end
+
     # Use callbacks to share common setup or constraints between actions.
     def set_group
       @group = Group.find(params[:id])

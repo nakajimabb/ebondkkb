@@ -8,10 +8,10 @@ class UsersController < ApplicationController
     if params[:search].present?
       @users = @users.search(params[:search])
     end
-    if params[:retired].blank?
+    if params[:retired] != 'true'
       @users = @users.non_retired(nil, false)
     end
-    if params[:shop].blank?
+    if params[:shop] != 'true'
       @users = @users.where(shop: false)
     end
     if params[:prefecture].present?

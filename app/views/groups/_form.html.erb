@@ -12,7 +12,7 @@
   <div class="row">
     <div class="col-md-6 col-xs-12">
       <div class="card card-primary">
-        <div class="card-body">
+        <div class="card-body pb-0">
           <div class="form-group row">
             <%= form.label :name, class: "col-sm-2 col-form-label" %>
             <div class="col-sm-10">
@@ -30,8 +30,7 @@
             <label class="form-check-label" for="group_hidden"><small>非公開</small></label>
           </div>
 
-          <% group_users = group.group_users.map{ |gu| {id: gu.id, user_id: gu.user_id, user_name: gu.user&.name_with_code, error: gu.errors.full_messages.join(',') } } %>
-          <%= react_component("TableForm", { title: 'メンバー', data: group_users }) %>
+          <%= react_component("TableForm", { title: 'メンバー', data: @group_users }) %>
 
         </div>
         <div class="card-footer">
