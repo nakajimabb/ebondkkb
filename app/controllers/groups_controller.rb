@@ -74,6 +74,7 @@ class GroupsController < ApplicationController
           id: gu.id,
           user_id: gu.user_id,
           _destroy: gu._destroy,
+          _modify: gu.changed?,
           user_name: gu.user&.name_with_code,
           error: gu.errors.full_messages.join(',')
         }
