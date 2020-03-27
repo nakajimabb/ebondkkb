@@ -1,33 +1,60 @@
-<p id="notice"><%= notice %></p>
+<% content_for(:title) { 'グループ' } %>
 
-<h1>Groups</h1>
+<% content_for(:breadcrumb) do %>
+  <ol class="breadcrumb float-sm-right">
+    <li class="breadcrumb-item">グループ関連</li>
+    <li class="breadcrumb-item active">グループ一覧</li>
+  </ol>
+<% end %>
 
-<table>
+<nav class="navbar navbar-expand navbar-light">
+  <!-- SEARCH FORM -->
+  <%= form_with model: nil, url: groups_path, method: :get, local: true do |f| %>
+    <div class="input-group input-group-sm">
+      <%= f.text_field :search, value: params[:search], placeholder: '名前・コード', class: 'form-control form-control-navbar mr-1 ascii' %>
+      <%= f.submit view_i18n('search'), class: 'btn btn-outline-secondary btn-sm mr-3' %>
+      <%= link_to view_i18n('new'), new_group_path, class: 'btn btn-outline-primary btn-sm' %>
+    </div>
+  <% end %>
+
+  <!-- sub Menu -->
+  <ul class="navbar-nav ml-auto">
+    <li class="nav-item dropdown mt-4">
+      <%= @groups.total_count %> Hit &nbsp;
+    </li>
+    <li class="nav-item dropdown mt-3">
+      <%= paginate @groups %>
+    </li>
+  </ul>
+</nav>
+
+
+<table class="table table-sm">
+  <colgroup>
+    <col width="160px">
+    <col width="80px">
+    <col>
+    <col width="100px">
+  </colgroup>
   <thead>
     <tr>
-      <th>Name</th>
-      <th>Code</th>
-      <th>Hidden</th>
-      <th>members</th>
-      <th colspan="3"></th>
+      <th><%= attr_i18n('group', 'code') %></th>
+      <th><%= attr_i18n('group', 'name') %></th>
+      <th><%= attr_i18n('group', 'users') %></th>
+      <th></th>
     </tr>
   </thead>
-
   <tbody>
     <% @groups.each do |group| %>
-      <tr>
-        <td><%= group.name %></td>
+      <tr class="<%= 'text-muted' if group.hidden? %>">
+        <td><small><%= group.name %></small></td>
         <td><%= group.code %></td>
-        <td><%= group.hidden %></td>
-        <td><%= group.users.map(&:name_with_code).join(', ') %></td>
-        <td><%= link_to 'Show', group %></td>
-        <td><%= link_to 'Edit', edit_group_path(group) %></td>
-        <td><%= link_to 'Destroy', group, method: :delete, data: { confirm: 'Are you sure?' } %></td>
+        <td><small><%= group.users.map(&:name_with_code).join(' ') %></small></td>
+        <td>
+          <%= link_to view_i18n('edit'), edit_group_path(group), class: 'btn btn-primary btn-xs' %>
+          <%= link_to view_i18n('delete'), group, method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger btn-xs' %>
+        </td>
       </tr>
     <% end %>
   </tbody>
 </table>
-
-<br>
-
-<%= link_to 'New Group', new_group_path %>

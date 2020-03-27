@@ -1,0 +1,11 @@
+ja:
+  activerecord:
+    models:
+      group: 'グループ'
+    attributes:
+      group:
+        id: 'Id'
+        code: 'コード'
+        name: '名前'
+        hidden: '非公開'
+        users: 'メンバー'
