@@ -69,7 +69,15 @@ class GroupsController < ApplicationController
     def group_users(group, eager_load)
       result = group.group_users
       result = result.eager_load(:user) if eager_load
-      result.map{ |gu| {id: gu.id, user_id: gu.user_id, user_name: gu.user&.name_with_code, error: gu.errors.full_messages.join(',') } }
+      result.map do |gu|
+        {
+          id: gu.id,
+          user_id: gu.user_id,
+          _destroy: gu._destroy,
+          user_name: gu.user&.name_with_code,
+          error: gu.errors.full_messages.join(',')
+        }
+      end
     end
 
     # Use callbacks to share common setup or constraints between actions.

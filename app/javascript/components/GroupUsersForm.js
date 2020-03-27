@@ -15,7 +15,7 @@ const GroupUser = ({
   return (
     <>
       <td className={clsx(data.error && 'pt-2 pb-0', 'w-75')}>
-        {data._modify && (
+        {(data._modify || !data.id) && (
           <>
             <input
               type="hidden"
