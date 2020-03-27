@@ -4,6 +4,8 @@ class User < ApplicationRecord
   devise :database_authenticatable, :rememberable,
          :timeoutable, :trackable, :validatable, :lockable
 
+  belongs_to :parent, class_name: "User", foreign_key: :parent_id, optional: true
+
   enum sex: {male: 1, female: 2}
   enum section: {weeds: 1, leaf: 2, lunar: 3, adviser: 4}
   enum expense_section: {expense_weeds: 1, expense_leaf: 2, expense_lunar: 3}
@@ -16,7 +18,7 @@ class User < ApplicationRecord
 
   REGISTRABLE_ATTRIBUTES = %i(code email first_name last_name first_name_kana last_name_kana sex birthday
                               zip prefecture city street building tel mobile fax
-                              shift_number1 shift_number2
+                              shift_number1 shift_number2 parent_id
                               password password_confirmation)
 
   scope :search, -> (user_name) do

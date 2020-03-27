@@ -22,6 +22,10 @@
         <%= f.check_box :shop, {checked: params[:shop] == 'true'}, true, false %>
         <label class="form-check-label" for="shop"><small>店舗を表示</small></label>
       </div>
+      <div class="form-check p-1">
+        <%= f.check_box :child, {checked: params[:child] == 'true'}, true, false %>
+        <label class="form-check-label" for="shop"><small>子</small></label>
+      </div>
       <%= f.submit view_i18n('search'), class: 'btn btn-outline-secondary btn-sm mr-3' %>
       <%= link_to view_i18n('new'), new_user_path, class: 'btn btn-outline-primary btn-sm' %>
     </div>

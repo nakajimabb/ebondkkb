@@ -36,6 +36,7 @@ ja:
         shift_number2: 'シフト番号②'
         section: '区分'
         expense_section: '経費区分'
+        parent_id: '元データ'
         password: 'パスワード'
         password_confirmation: 'パスワード（確認用）'
   enums:

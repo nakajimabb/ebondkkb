@@ -14,6 +14,9 @@ class UsersController < ApplicationController
     if params[:shop] != 'true'
       @users = @users.where(shop: false)
     end
+    if params[:child] == 'true'
+      @users = @users.where.not(parent_id: nil)
+    end
     if params[:prefecture].present?
       @users = @users.where(prefecture: params[:prefecture])
     end

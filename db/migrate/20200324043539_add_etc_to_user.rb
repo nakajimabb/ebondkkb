@@ -25,5 +25,6 @@ class AddEtcToUser < ActiveRecord::Migration[6.0]
     add_column :users, :tel, :string, null: false, default: '', limit: 16
     add_column :users, :mobile, :string, null: false, default: '', limit: 16
     add_column :users, :fax, :string, null: false, default: '', limit: 16
+    add_reference :users, :parent, foreign_key: { to_table: :users }
   end
 end

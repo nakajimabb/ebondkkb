@@ -105,6 +105,12 @@
                 <th class="px-2 py-0"><%= form.label :tel, class: 'col-form-label font-weight-normal text-sm' %></th>
                 <td class="px-2 py-0"><%= form.text_field :tel, class: 'form-control form-control-sm' %></td>
               </tr>
+              <tr>
+                <th class="px-2 py-0"><%= form.label :parent_id, class: 'col-form-label font-weight-normal text-sm' %></th>
+                <td class="px-2 py-0">
+                  <%= react_component("SelectUser", {isClearable: true, name: 'user[parent_id]', value: {label: user.parent&.name_with_code, value: user.parent_id}}) %>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>

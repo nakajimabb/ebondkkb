@@ -70,10 +70,13 @@ ActiveRecord::Schema.define(version: 2020_03_25_014515) do
     t.string "tel", limit: 16, default: "", null: false
     t.string "mobile", limit: 16, default: "", null: false
     t.string "fax", limit: 16, default: "", null: false
+    t.bigint "parent_id"
     t.index ["email"], name: "index_users_on_email", unique: true
+    t.index ["parent_id"], name: "index_users_on_parent_id"
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
 
   add_foreign_key "group_users", "groups"
   add_foreign_key "group_users", "users"
+  add_foreign_key "users", "users", column: "parent_id"
 end
