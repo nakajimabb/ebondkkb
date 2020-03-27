@@ -7,8 +7,9 @@ require('@rails/ujs').start();
 require('@rails/activestorage').start();
 require('channels');
 
+require('@fortawesome/fontawesome-free/css/all.css');
+require('@fortawesome/fontawesome-free');
 require('admin-lte/dist/css/adminlte');
-require('fontawesome');
 
 require('jquery');
 require('bootstrap');
