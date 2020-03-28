@@ -13,7 +13,7 @@
     <div class="input-group input-group-sm">
       <%= f.text_field :search, value: params[:search], placeholder: '氏名・カナ・番号', class: 'form-control form-control-navbar mr-1 ascii' %>
       <%= f.select :prefecture, options_for_select(prefecture_options, params[:prefecture]),
-                   {prompt: '--都道府県--'}, class: 'form-control form-control-navbar mr-1 ascii' %>
+                   {prompt: '--都道府県--'}, class: 'form-control form-control-navbar mr-1' %>
       <div class="form-check p-1">
         <%= f.check_box :retired, {checked: params[:retired] == 'true'}, true, false %>
         <label class="form-check-label" for="retired"><small>退職者を表示</small></label>

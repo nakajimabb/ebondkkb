@@ -195,6 +195,18 @@ scratch. This page gets rid of all links and provides the needed markup only.
                   <p>グループ管理</p>
                 <% end %>
               </li>
+              <li class="nav-item">
+                <%= link_to companies_path, class: 'nav-link' do %>
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>会社管理</p>
+                <% end %>
+              </li>
+              <li class="nav-item">
+                <%= link_to dests_path, class: 'nav-link' do %>
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>店舗・部門管理</p>
+                <% end %>
+              </li>
             </ul>
           </li>
         </ul>

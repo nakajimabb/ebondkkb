@@ -1,0 +1,17 @@
+ja:
+  activerecord:
+    models:
+      company: '会社'
+    attributes:
+      company:
+        id: 'Id'
+        code: '番号'
+        name: '会社名'
+        section: '区分'
+        hidden: '非表示'
+  enums:
+    company:
+      section:
+        weeds: 'ウィーズ'
+        lunar: 'ルナ'
+        third_pole: '第三極'

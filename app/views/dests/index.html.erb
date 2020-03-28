@@ -1,0 +1,73 @@
+<% content_for(:title) { '店舗・部門一覧' } %>
+
+<% content_for(:breadcrumb) do %>
+  <ol class="breadcrumb float-sm-right">
+    <li class="breadcrumb-item">店舗・部門関連</li>
+    <li class="breadcrumb-item active">店舗・部門一覧</li>
+  </ol>
+<% end %>
+
+<nav class="navbar navbar-expand navbar-light">
+  <!-- SEARCH FORM -->
+  <%= form_with model: nil, url: dests_path, method: :get, local: true do |f| %>
+    <div class="input-group input-group-sm">
+      <%= f.text_field :search, value: params[:search], placeholder: '名前・カナ・番号', class: 'form-control form-control-navbar mr-1 ascii' %>
+      <%= f.select :dest_type, options_for_select(Dest.dest_types_i18n.invert, params[:dest_type]),
+                   {prompt: '--種別--'}, class: 'form-control form-control-navbar mr-1' %>
+      <%= f.select :provisional, options_for_select([['仮店舗を含む', :include], ['仮店舗を含まない', :exclude], ['仮店舗のみ', :only]], params[:provisional]),
+                   {include_blank: false}, class: 'form-control form-control-navbar mr-1 ascii' %>
+      <%= f.select :prefecture, options_for_select(prefecture_options, params[:prefecture]),
+                   {prompt: '--都道府県--'}, class: 'form-control form-control-navbar mr-1 ascii' %>
+      <div class="form-check p-1">
+        <%= f.check_box :closed, {checked: params[:closed] == 'true'}, true, false %>
+        <label class="form-check-label" for="retired"><small>閉局を表示</small></label>
+      </div>
+      <%= f.submit view_i18n('search'), class: 'btn btn-outline-secondary btn-sm mr-3' %>
+      <%= link_to view_i18n('new'), new_dest_path, class: 'btn btn-outline-primary btn-sm' %>
+    </div>
+  <% end %>
+
+  <!-- sub Menu -->
+  <ul class="navbar-nav ml-auto">
+    <li class="nav-item dropdown mt-4">
+      <%= @dests.total_count %> Hit &nbsp;
+    </li>
+    <li class="nav-item dropdown mt-3">
+      <%= paginate @dests %>
+    </li>
+  </ul>
+</nav>
+
+<table class="table table-sm">
+  <thead>
+    <tr>
+      <th><%= attr_i18n('dest', 'code') %></th>
+      <th><%= attr_i18n('dest', 'name') %></th>
+      <th><%= attr_i18n('dest', 'kana') %></th>
+      <th><%= attr_i18n('dest', 'dest_type') %></th>
+      <th><%= attr_i18n('dest', 'provisional') %></th>
+      <th><%= attr_i18n('dest', 'opened_on') %></th>
+      <th><%= attr_i18n('dest', 'closed_on') %></th>
+      <th><%= attr_i18n('dest', 'prefecture') %></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+  <% @dests.each do |dest| %>
+    <tr>
+      <td><%= dest.code %></td>
+      <td><%= dest.name %></td>
+      <td><%= dest.kana %></td>
+      <td><%= dest.dest_type_i18n %></td>
+      <td><%= '○' if dest.provisional? %></td>
+      <td><%= dest.opened_on %></td>
+      <td><%= dest.closed_on %></td>
+      <td><%= prefecture_i18n(dest.prefecture) %></td>
+      <td>
+        <%= link_to view_i18n('edit'), edit_dest_path(dest), class: 'btn btn-primary btn-xs' %>
+        <%= link_to view_i18n('delete'), dest, method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger btn-xs' %>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

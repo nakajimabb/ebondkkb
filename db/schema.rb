@@ -10,7 +10,41 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_03_25_014515) do
+ActiveRecord::Schema.define(version: 2020_03_28_020052) do
+
+  create_table "companies", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "code", null: false
+    t.string "name", default: "", null: false
+    t.boolean "hidden", default: false, null: false
+    t.integer "section", limit: 1, default: 1, null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["code"], name: "index_companies_on_code", unique: true
+  end
+
+  create_table "dests", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.bigint "company_id", null: false
+    t.string "code", limit: 16, null: false
+    t.string "name", limit: 32, default: "", null: false
+    t.string "kana", limit: 32, default: "", null: false
+    t.integer "dest_type", limit: 1, default: 1, null: false
+    t.string "shift_number1", limit: 16, default: "", null: false
+    t.string "shift_number2", limit: 16, default: "", null: false
+    t.date "opened_on"
+    t.date "closed_on"
+    t.date "started_on"
+    t.date "finished_on"
+    t.string "zip", limit: 10, default: "", null: false
+    t.integer "prefecture", limit: 2
+    t.string "city", limit: 16, default: "", null: false
+    t.string "street", limit: 64, default: "", null: false
+    t.string "building", limit: 64, default: "", null: false
+    t.boolean "provisional", default: false, null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["company_id", "code"], name: "index_dests_on_company_id_and_code", unique: true
+    t.index ["company_id"], name: "index_dests_on_company_id"
+  end
 
   create_table "group_users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.bigint "group_id", null: false
@@ -76,6 +110,7 @@ ActiveRecord::Schema.define(version: 2020_03_25_014515) do
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
 
+  add_foreign_key "dests", "companies"
   add_foreign_key "group_users", "groups"
   add_foreign_key "group_users", "users"
   add_foreign_key "users", "users", column: "parent_id"

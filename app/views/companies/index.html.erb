@@ -1,0 +1,59 @@
+<% content_for(:title) { '会社一覧' } %>
+
+<% content_for(:breadcrumb) do %>
+  <ol class="breadcrumb float-sm-right">
+    <li class="breadcrumb-item">会社関連</li>
+    <li class="breadcrumb-item active">会社一覧</li>
+  </ol>
+<% end %>
+
+<nav class="navbar navbar-expand navbar-light">
+  <!-- SEARCH FORM -->
+  <%= form_with model: nil, url: companies_path, method: :get, local: true do |f| %>
+    <div class="input-group input-group-sm">
+      <%= f.text_field :search, value: params[:search], placeholder: '名前・番号', class: 'form-control form-control-navbar mr-1 ascii' %>
+      <%= f.select :section, options_for_select(Company.sections_i18n.invert, params[:section]),
+                   {prompt: '--区分--'}, class: 'form-control form-control-navbar mr-1 ascii' %>
+      <div class="form-check p-1">
+        <%= f.check_box :hidden, {checked: params[:hidden] == 'true'}, true, false %>
+        <label class="form-check-label" for="shop"><small>全て表示</small></label>
+      </div>
+      <%= f.submit view_i18n('search'), class: 'btn btn-outline-secondary btn-sm mr-3' %>
+      <%= link_to view_i18n('new'), new_company_path, class: 'btn btn-outline-primary btn-sm' %>
+    </div>
+  <% end %>
+
+  <!-- sub Menu -->
+  <ul class="navbar-nav ml-auto">
+    <li class="nav-item dropdown mt-4">
+      <%= @companies.total_count %> Hit &nbsp;
+    </li>
+    <li class="nav-item dropdown mt-3">
+      <%= paginate @companies %>
+    </li>
+  </ul>
+</nav>
+
+<table class="table table-sm">
+  <thead>
+    <tr>
+      <th><%= attr_i18n('company', 'code') %></th>
+      <th><%= attr_i18n('company', 'name') %></th>
+      <th><%= attr_i18n('company', 'section') %></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+  <% @companies.each do |company| %>
+    <tr class="<%= 'text-done' if company.hidden? %>">
+      <td><%= company.code %></td>
+      <td><%= company.name %></td>
+      <td><%= company.section_i18n %></td>
+      <td>
+        <%= link_to view_i18n('edit'), edit_company_path(company), class: 'btn btn-primary btn-xs' %>
+        <%= link_to view_i18n('delete'), company, method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger btn-xs' %>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

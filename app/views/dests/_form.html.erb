@@ -1,8 +1,8 @@
-<%= form_with(model: user, local: true) do |form| %>
-  <% if user.errors.any? %>
+<%= form_with(model: dest, local: true) do |form| %>
+  <% if dest.errors.any? %>
     <div id="error_explanation">
       <ul>
-        <% user.errors.full_messages.each do |message| %>
+        <% dest.errors.full_messages.each do |message| %>
           <li><%= message %></li>
         <% end %>
       </ul>
@@ -22,6 +22,13 @@
               <col width="70%">
             </colgroup>
             <tbody>
+            <tr>
+              <th class="px-2 py-1"><%= form.label :company_id, class: 'font-weight-normal text-sm' %></th>
+              <td class="px-2 py-1">
+                <%= form.select :company_id, options_from_collection_for_select(Company.active, :id, :name_with_code, dest.company_id),
+                                {include_blank: false}, class: 'form-control form-control-sm' %>
+              </td>
+            </tr>
               <tr>
                 <th class="px-2 py-1"><%= form.label :code, class: 'font-weight-normal text-sm' %></th>
                 <td class="px-2 py-1"><%= form.text_field :code, class: 'form-control form-control-sm' %></td>
@@ -29,48 +36,25 @@
               <tr>
                 <th class="px-2 py-1"><%= form.label :name, class: 'font-weight-normal text-sm' %></th>
                 <td class="px-2 py-1">
-                  <div class="row">
-                    <div class="col-md-6">
-                      <%= form.text_field :last_name, class: 'form-control form-control-sm' %>
-                    </div>
-                    <div class="col-md-6">
-                      <%= form.text_field :first_name, class: 'form-control form-control-sm' %>
-                    </div>
-                  </div>
+                  <%= form.text_field :name, class: 'form-control form-control-sm' %>
                 </td>
               </tr>
               <tr>
-                <th class="px-2 py-1"><%= form.label :email, class: 'font-weight-normal text-sm' %></th>
-                <td class="px-2 py-1"><%= form.text_field :email, class: 'form-control form-control-sm' %></td>
+                <th class="px-2 py-1"><%= form.label :kana, class: 'font-weight-normal text-sm' %></th>
+                <td class="px-2 py-1"><%= form.text_field :kana, class: 'form-control form-control-sm' %></td>
               </tr>
               <tr>
-                <th class="px-2 py-1"><%= form.label :sex, class: 'font-weight-normal text-sm' %></th>
+                <th class="px-2 py-1"><%= form.label :dest_type, class: 'font-weight-normal text-sm' %></th>
                 <td class="px-2 py-1">
-                  <%= form.select :sex, User.sexes_i18n.invert, {}, class: 'form-control form-control-sm' %>
+                  <%= form.select :dest_type, Dest.dest_types_i18n.invert, {}, class: 'form-control form-control-sm' %>
+                  <%= form.check_box :provisional %>
+                  <label class="form-check-label" for="group_provisional"><small>仮店舗</small></label>
                 </td>
               </tr>
               <tr>
                 <th class="px-2 py-1"><%= form.label :prefecture, class: 'font-weight-normal text-sm' %></th>
                 <td class="px-2 py-1">
                   <%= form.select :prefecture, prefecture_options, {include_blank: true}, class: 'form-control form-control-sm' %>
-                </td>
-              </tr>
-              <tr>
-                <th class="px-2 py-1"><%= form.label :birthday, class: 'font-weight-normal text-sm' %></th>
-                <td class="px-2 py-1">
-                  <%= form.date_field :birthday, class: 'form-control form-control-sm' %>
-                </td>
-              </tr>
-              <tr>
-                <th class="px-2 py-1"><%= form.label :password, class: 'font-weight-normal text-sm' %></th>
-                <td class="px-2 py-1">
-                  <%= form.password_field :password, autocomplete: 'new-password', class: 'form-control form-control-sm' %>
-                </td>
-              </tr>
-              <tr>
-                <th class="px-2 py-1"><%= form.label :password_confirmation, class: 'font-weight-normal text-sm' %></th>
-                <td class="px-2 py-1">
-                  <%= form.password_field :password_confirmation, autocomplete: 'new-password', class: 'form-control form-control-sm' %>
                 </td>
               </tr>
             </tbody>
@@ -100,13 +84,23 @@
                 <td class="px-2 py-1"><%= form.text_field :shift_number2, class: 'form-control form-control-sm' %></td>
               </tr>
               <tr>
-                <th class="px-2 py-1"><%= form.label :tel, class: 'font-weight-normal text-sm' %></th>
-                <td class="px-2 py-1"><%= form.text_field :tel, class: 'form-control form-control-sm' %></td>
+                <th class="px-2 py-1">
+                  <%= form.label (attr_i18n('dest', 'opened_on') + '/' + attr_i18n('dest', 'closed_on')),
+                                  class: 'font-weight-normal text-sm' %>
+                </th>
+                <td class="px-2 py-1">
+                  <%= form.date_field :opened_on, class: 'form-control form-control-sm' %>
+                  <%= form.date_field :closed_on, class: 'form-control form-control-sm' %>
+                </td>
               </tr>
               <tr>
-                <th class="px-2 py-1"><%= form.label :parent_id, class: 'font-weight-normal text-sm' %></th>
+                <th class="px-2 py-1">
+                  <%= form.label (attr_i18n('dest', 'started_on') + '/' + attr_i18n('dest', 'finished_on')),
+                                 class: 'font-weight-normal text-sm' %>
+                </th>
                 <td class="px-2 py-1">
-                  <%= react_component("SelectUser", {isClearable: true, name: 'user[parent_id]', value: {label: user.parent&.name_with_code, value: user.parent_id}}) %>
+                  <%= form.date_field :started_on, class: 'form-control form-control-sm' %>
+                  <%= form.date_field :finished_on, class: 'form-control form-control-sm' %>
                 </td>
               </tr>
             </tbody>

@@ -1,0 +1,1 @@
+json.extract! dest, :id, :company_id, :code, :name, :kana, :dest_type, :provisional, :opened_on, :closed_on, :started_on, :finished_on, :shift_number1, :shift_number2, :zip, :prefecture, :city, :street, :building

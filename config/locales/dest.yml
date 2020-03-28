@@ -1,0 +1,33 @@
+ja:
+  activerecord:
+    models:
+      dest: '店舗・部門'
+    attributes:
+      dest:
+        id: 'Id'
+        company_id: '会社'
+        code: '番号'
+        name: '名前'
+        kana: 'カナ'
+        dest_type: '種別'
+        provisional: '仮店舗'
+        zip: '郵便番号'
+        prefecture: '都道府県'
+        city: '市区町村'
+        street: '以降の住所'
+        building: '建物名'
+        opened_on: '開局日'
+        closed_on: '閉局日'
+        started_on: '開始日'
+        finished_on: '終了日'
+        shift_number1: 'シフト番号①'
+        shift_number2: 'シフト番号②'
+  enums:
+    dest:
+      dest_type:
+        shop: '店舗'
+        department: '部門'
+        haken: '派遣'
+        outside: 'ｼﾌﾄ外KKB'
+        paid_holiday: '有給'
+        legal_holiday: '公休'

@@ -1,8 +1,10 @@
 Rails.application.routes.draw do
-  resources :groups
   root 'users#index'
 
   devise_for :users, :controllers => { sessions: "users/sessions" }
   resources :users
+  resources :groups
+  resources :companies, except: :show
+  resources :dests
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end
