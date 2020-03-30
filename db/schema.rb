@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_03_30_025836) do
+ActiveRecord::Schema.define(version: 2020_03_30_052728) do
 
   create_table "areas", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "code", limit: 16, null: false
@@ -95,6 +95,17 @@ ActiveRecord::Schema.define(version: 2020_03_30_025836) do
     t.index ["code"], name: "index_regions_on_code", unique: true
   end
 
+  create_table "user_dated_values", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.date "dated_on", null: false
+    t.integer "code", limit: 1, null: false
+    t.integer "value"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["user_id", "code", "dated_on"], name: "index_user_dated_values_on_user_id_and_code_and_dated_on", unique: true
+    t.index ["user_id"], name: "index_user_dated_values_on_user_id"
+  end
+
   create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -145,5 +156,6 @@ ActiveRecord::Schema.define(version: 2020_03_30_025836) do
   add_foreign_key "group_users", "users"
   add_foreign_key "region_areas", "areas"
   add_foreign_key "region_areas", "regions"
+  add_foreign_key "user_dated_values", "users"
   add_foreign_key "users", "users", column: "parent_id"
 end

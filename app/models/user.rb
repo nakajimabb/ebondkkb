@@ -5,6 +5,9 @@ class User < ApplicationRecord
          :timeoutable, :trackable, :validatable, :lockable
 
   belongs_to :parent, class_name: "User", foreign_key: :parent_id, optional: true
+  has_many :group_users, dependent: :destroy
+  has_many :groups, through: :group_users
+  has_many :user_dated_values, dependent: :destroy
 
   enum sex: {male: 1, female: 2}
   enum section: {weeds: 1, leaf: 2, lunar: 3, adviser: 4}
@@ -24,7 +27,7 @@ class User < ApplicationRecord
   scope :search, -> (user_name) do
     user_name = user_name.gsub(/\p{Blank}/, '')
     if user_name =~ /^[0-9a-zA-Z$]+$/
-      where('code LIKE ?', '%' + user_name + '%')
+      where('users.code LIKE ?', '%' + user_name + '%')
     elsif user_name =~ /^[\p{Hiragana}]+$/ or user_name =~ /^[\p{Katakana}]+$/
       user_name = user_name.tr('ぁ-ん','ァ-ン')
       where('concat(last_name_kana, first_name_kana) LIKE ?', '%' + user_name + '%')
@@ -56,6 +59,22 @@ class User < ApplicationRecord
 
   scope :non_retired, -> (day=nil, except_shop=true) do
     active(day, except_shop, [:entered_on, :started_on, :finished_on])
+  end
+
+  scope :with_dated_values, -> (date, params, suspend=false) do
+    params = params.dup
+    # TODO: user_dated_value に suspend がない場合も考慮する必要がある
+    params[:suspend] = suspend if !suspend.nil? && !params.has_key?(:suspend)
+    users = all
+    params.each do |code, value|
+      joined = "dated_values_#{code}"
+      code = UserDatedValue.codes[code]
+      users = users.joins("join user_dated_values #{joined} on users.id = #{joined}.user_id")
+      users = users.where("#{joined}.dated_on = (select max(dated_on) from user_dated_values where dated_on <= ? and user_id = users.id and code = ?)", date, code)
+      users = users.where(joined => {code: code, value: value})
+      users
+    end
+    users.group(:id)
   end
 
   def admin?

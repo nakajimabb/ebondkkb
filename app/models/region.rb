@@ -3,5 +3,7 @@ class Region < ApplicationRecord
   accepts_nested_attributes_for :region_areas, allow_destroy: true
   has_many :areas, through: :region_areas
 
+  scope :active, -> { where(hidden: false) }
+
   REGISTRABLE_ATTRIBUTES = %i(code name hidden rank)
 end

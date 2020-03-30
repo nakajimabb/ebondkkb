@@ -11,6 +11,10 @@ module ApplicationHelper
     User.prefectures.map { |code, _| [prefecture_i18n(code), code] }
   end
 
+  def user_dated_value_options(code)
+    UserDatedValue.enum_values(code).map { |key, value| [t("enum_values.user_dated_value.#{code}.#{key}"), value] }
+  end
+
   def view_i18n(code, model='app')
     t("views.#{model}.#{code}") if code.present?
   end

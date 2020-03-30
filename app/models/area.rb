@@ -10,6 +10,8 @@ class Area < ApplicationRecord
 
   REGISTRABLE_ATTRIBUTES = %i(code name short_name hidden)
 
+  scope :active, -> { where(hidden: false) }
+
   def name_with_code
     "#{name}(#{code})"
   end

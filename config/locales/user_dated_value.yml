@@ -1,0 +1,37 @@
+ja:
+  activerecord:
+    models:
+      user_dated_value: '異動登録'
+    attributes:
+      user_dated_value:
+        id: 'Id'
+        dated_on: '日付'
+        user_id: '社員'
+        code: '種別'
+        value: '値'
+  enums:
+    user_dated_value:
+      job_type: '職制'
+      table_type: 'テーブルタイプ'
+      employment: '雇用形態'
+      suspend: '休職'
+      area_id: 'エリア'
+      company_id: '所属会社'
+  enum_values:
+    user_dated_value:
+      job_type:
+        pharmacist: '薬剤師'
+        office_worker: '事務員'
+      table_type:
+        table_a: 'A表'
+        table_b: 'B表'
+      employment:
+        formal111: '正社員111'
+        formal123: '正社員123'
+        formal73: '正社員73'
+        exective: '役員'
+        parttime_normal: 'パート'
+        daily_parttime: '日当パート'
+        contract: '契約社員'
+        advisor: '顧問'
+        haken: '派遣'
