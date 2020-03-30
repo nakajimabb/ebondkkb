@@ -1,0 +1,57 @@
+<% content_for(:title) { 'リージョン一覧' } %>
+
+<% content_for(:breadcrumb) do %>
+  <ol class="breadcrumb float-sm-right">
+    <li class="breadcrumb-item">リージョン関連</li>
+    <li class="breadcrumb-item active">リージョン一覧</li>
+  </ol>
+<% end %>
+
+<nav class="navbar navbar-expand navbar-light">
+  <!-- SEARCH FORM -->
+  <%= form_with model: nil, url: regions_path, method: :get, local: true do |f| %>
+    <div class="input-group input-group-sm">
+      <%= @regions.size %> Hit &nbsp;
+    </div>
+  <% end %>
+
+  <!-- sub Menu -->
+  <ul class="navbar-nav ml-auto">
+    <li class="nav-item dropdown mt-4">
+      <%= link_to view_i18n('new'), new_region_path, class: 'btn btn-outline-primary btn-sm' %>
+    </li>
+  </ul>
+</nav>
+
+<table class="table table-sm">
+  <colgroup>
+    <col width="80px">
+    <col width="120px">
+    <col>
+    <col width="40px">
+    <col width="100px">
+  </colgroup>
+  <thead>
+    <tr>
+      <th><%= attr_i18n('region', 'code') %></th>
+      <th><%= attr_i18n('region', 'name') %></th>
+      <th><%= attr_i18n('region', 'areas') %></th>
+      <th><%= attr_i18n('region', 'rank') %></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+  <% @regions.each do |region| %>
+    <tr class="<%= 'text-done' if region.hidden? %>">
+      <td><%= region.code %></td>
+      <td><%= region.name %></td>
+      <td><%= region.areas.map(&:name).join(', ') %></td>
+      <td><%= region.rank %></td>
+      <td>
+        <%= link_to view_i18n('edit'), edit_region_path(region), class: 'btn btn-primary btn-xs' %>
+        <%= link_to view_i18n('delete'), region, method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger btn-xs' %>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

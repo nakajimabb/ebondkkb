@@ -51,12 +51,7 @@ class CompaniesController < ApplicationController
   # PATCH/PUT /companies/1.json
   def update
     respond_to do |format|
-      company_p = company_params
-      if company_p[:password].blank? && company_p[:password_confirmation].blank?
-        company_p.delete(:password)
-        company_p.delete(:password_confirmation)
-      end
-      if @company.update(company_p)
+      if @company.update(company_params)
         format.html { redirect_to companies_path, notice: 'Company was successfully updated.' }
         format.json { render :show, status: :ok, location: @company }
       else

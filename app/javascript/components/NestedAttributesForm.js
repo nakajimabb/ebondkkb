@@ -7,6 +7,7 @@ const NestedAttributesForm = ({
   newData,
   changeData,
   component: Component,
+  component_props: component_props,
   per_page = 10,
 }) => {
   const [array, setArray] = useState(data);
@@ -93,6 +94,7 @@ const NestedAttributesForm = ({
                   onChange={onChange(index)}
                   onDelete={onDelete(index)}
                   changeEditIndex={changeEditIndex(index)}
+                  other={component_props}
                 />
               </tr>
             ))}

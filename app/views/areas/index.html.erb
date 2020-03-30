@@ -1,0 +1,50 @@
+<% content_for(:title) { 'エリア一覧' } %>
+
+<% content_for(:breadcrumb) do %>
+  <ol class="breadcrumb float-sm-right">
+    <li class="breadcrumb-item">エリア関連</li>
+    <li class="breadcrumb-item active">エリア一覧</li>
+  </ol>
+<% end %>
+
+<nav class="navbar navbar-expand navbar-light">
+  <!-- SEARCH FORM -->
+  <%= form_with model: nil, url: areas_path, method: :get, local: true do |f| %>
+    <div class="input-group input-group-sm">
+      <%= @areas.size %> Hit &nbsp;
+    </div>
+  <% end %>
+
+  <!-- sub Menu -->
+  <ul class="navbar-nav ml-auto">
+    <li class="nav-item dropdown mt-4">
+      <%= link_to view_i18n('new'), new_area_path, class: 'btn btn-outline-primary btn-sm' %>
+    </li>
+  </ul>
+</nav>
+
+<table class="table table-sm">
+  <thead>
+    <tr>
+      <th><%= attr_i18n('area', 'code') %></th>
+      <th><%= attr_i18n('area', 'name') %></th>
+      <th><%= attr_i18n('area', 'short_name') %></th>
+      <th><%= attr_i18n('area', 'regions') %></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+  <% @areas.each do |area| %>
+    <tr class="<%= 'text-done' if area.hidden? %>">
+      <td><%= area.code %></td>
+      <td><%= area.name %></td>
+      <td><%= area.short_name %></td>
+      <td><%= area.regions.map(&:name).join(', ') %></td>
+      <td>
+        <%= link_to view_i18n('edit'), edit_area_path(area), class: 'btn btn-primary btn-xs' %>
+        <%= link_to view_i18n('delete'), area, method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger btn-xs' %>
+      </td>
+    </tr>
+  <% end %>
+  </tbody>
+</table>

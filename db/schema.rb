@@ -10,7 +10,17 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_03_28_020052) do
+ActiveRecord::Schema.define(version: 2020_03_30_025836) do
+
+  create_table "areas", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "code", limit: 16, null: false
+    t.string "name", limit: 16, default: "", null: false
+    t.string "short_name", limit: 16, default: "", null: false
+    t.boolean "hidden", default: false, null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["code"], name: "index_areas_on_code", unique: true
+  end
 
   create_table "companies", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "code", null: false
@@ -65,6 +75,26 @@ ActiveRecord::Schema.define(version: 2020_03_28_020052) do
     t.index ["code"], name: "index_groups_on_code", unique: true
   end
 
+  create_table "region_areas", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.bigint "region_id", null: false
+    t.bigint "area_id", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["area_id"], name: "index_region_areas_on_area_id"
+    t.index ["region_id", "area_id"], name: "index_region_areas_on_region_id_and_area_id", unique: true
+    t.index ["region_id"], name: "index_region_areas_on_region_id"
+  end
+
+  create_table "regions", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "code", limit: 16, null: false
+    t.string "name", limit: 16, default: "", null: false
+    t.boolean "hidden", default: false, null: false
+    t.integer "rank", null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["code"], name: "index_regions_on_code", unique: true
+  end
+
   create_table "users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
@@ -113,5 +143,7 @@ ActiveRecord::Schema.define(version: 2020_03_28_020052) do
   add_foreign_key "dests", "companies"
   add_foreign_key "group_users", "groups"
   add_foreign_key "group_users", "users"
+  add_foreign_key "region_areas", "areas"
+  add_foreign_key "region_areas", "regions"
   add_foreign_key "users", "users", column: "parent_id"
 end

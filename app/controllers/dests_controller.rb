@@ -60,12 +60,7 @@ class DestsController < ApplicationController
   # PATCH/PUT /dests/1.json
   def update
     respond_to do |format|
-      dest_p = dest_params
-      if dest_p[:password].blank? && dest_p[:password_confirmation].blank?
-        dest_p.delete(:password)
-        dest_p.delete(:password_confirmation)
-      end
-      if @dest.update(dest_p)
+      if @dest.update(dest_params)
         format.html { redirect_to dests_path, notice: 'Dest was successfully updated.' }
         format.json { render :show, status: :ok, location: @dest }
       else

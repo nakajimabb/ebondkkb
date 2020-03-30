@@ -1,0 +1,12 @@
+ja:
+  activerecord:
+    models:
+      region: 'リージョン'
+    attributes:
+      region:
+        id: 'Id'
+        code: '番号'
+        name: '名称'
+        hidden: '非表示'
+        rank: '順位'
+        areas: 'エリア'

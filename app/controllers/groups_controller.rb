@@ -1,5 +1,5 @@
 class GroupsController < ApplicationController
-  before_action :set_group, only: [:show, :edit, :update, :destroy]
+  before_action :set_group, only: [:edit, :update, :destroy]
 
   # GET /groups
   # GET /groups.json
@@ -8,11 +8,6 @@ class GroupsController < ApplicationController
     if params[:search].present?
       @groups = @groups.search(params[:search])
     end
-  end
-
-  # GET /groups/1
-  # GET /groups/1.json
-  def show
   end
 
   # GET /groups/new

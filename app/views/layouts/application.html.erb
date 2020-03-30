@@ -207,6 +207,18 @@ scratch. This page gets rid of all links and provides the needed markup only.
                   <p>店舗・部門管理</p>
                 <% end %>
               </li>
+              <li class="nav-item">
+                <%= link_to areas_path, class: 'nav-link' do %>
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>エリア管理</p>
+                <% end %>
+              </li>
+              <li class="nav-item">
+                <%= link_to regions_path, class: 'nav-link' do %>
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>リージョン管理</p>
+                <% end %>
+              </li>
             </ul>
           </li>
         </ul>

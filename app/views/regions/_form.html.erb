@@ -1,0 +1,48 @@
+<%= form_with(model: region, local: true) do |form| %>
+  <% if region.errors.any? %>
+    <div id="error_explanation">
+      <ul>
+        <% region.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="row">
+    <div class="col-md-6 col-xs-12">
+      <div class="card card-primary">
+        <div class="card-body pb-0">
+          <div class="form-group row">
+            <%= form.label :code, class: "col-sm-2 col-form-label" %>
+            <div class="col-sm-10">
+              <%= form.text_field :code, class: 'form-control' %>
+            </div>
+          </div>
+          <div class="form-group row">
+            <%= form.label :name, class: "col-sm-2 col-form-label" %>
+            <div class="col-sm-10">
+              <%= form.text_field :name, class: 'form-control' %>
+            </div>
+          </div>
+          <div class="form-group row">
+            <%= form.label :rank, class: "col-sm-2 col-form-label" %>
+            <div class="col-sm-10">
+              <%= form.number_field :rank, class: 'form-control' %>
+            </div>
+          </div>
+          <div class="form-group">
+            <%= form.check_box :hidden %>
+            <label class="form-check-label" for="region_hidden"><small>非公開</small></label>
+          </div>
+
+          <% area_options = Area.all.map{ |area| {label: area.name, value: area.id} } %>
+          <%= react_component("RegionAreasForm", { title: 'エリア', data: @region_areas, component_props: {select_options: area_options} }) %>
+        </div>
+        <div class="card-footer">
+          <%= form.submit class: 'btn btn-primary' %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>

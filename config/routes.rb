@@ -6,5 +6,7 @@ Rails.application.routes.draw do
   resources :groups
   resources :companies, except: :show
   resources :dests
+  resources :areas, except: :show
+  resources :regions, except: :show
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end
