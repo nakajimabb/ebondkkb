@@ -8,4 +8,15 @@ class Group < ApplicationRecord
 
   REGISTRABLE_ATTRIBUTES = %i(code name hidden)
 
+  scope :search, -> (group_name) do
+    group_name = group_name.gsub(/\p{Blank}/, '')
+    if group_name =~ /^[0-9a-zA-Z$]+$/
+      where('groups.code LIKE ?', '%' + group_name + '%')
+    elsif group_name =~ /^[\p{Hiragana}]+$/ or group_name =~ /^[\p{Katakana}]+$/
+      group_name = group_name.tr('ぁ-ん','ァ-ン')
+      where('groups.kana LIKE ?', '%' + group_name + '%')
+    else
+      where('groups.name LIKE ?', '%' + group_name + '%')
+    end
+  end
 end

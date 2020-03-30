@@ -5,6 +5,9 @@ class GroupsController < ApplicationController
   # GET /groups.json
   def index
     @groups = Group.eager_load(:users).page(params[:page])
+    if params[:search].present?
+      @groups = @groups.search(params[:search])
+    end
   end
 
   # GET /groups/1
