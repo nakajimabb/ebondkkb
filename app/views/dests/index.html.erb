@@ -16,6 +16,8 @@
                    {prompt: '--種別--'}, class: 'form-control form-control-navbar mr-1' %>
       <%= f.select :provisional, options_for_select([['仮店舗を含む', :include], ['仮店舗を含まない', :exclude], ['仮店舗のみ', :only]], params[:provisional]),
                    {include_blank: false}, class: 'form-control form-control-navbar mr-1 ascii' %>
+      <%= f.select :area_id, options_from_collection_for_select(Area.active, :id, :name, params[:area_id]),
+                   {prompt: '--ｴﾘｱ--'}, class: 'form-control form-control-navbar mr-1' %>
       <%= f.select :prefecture, options_for_select(prefecture_options, params[:prefecture]),
                    {prompt: '--都道府県--'}, class: 'form-control form-control-navbar mr-1 ascii' %>
       <div class="form-check p-1">
@@ -49,11 +51,14 @@
       <th><%= attr_i18n('dest', 'opened_on') %></th>
       <th><%= attr_i18n('dest', 'closed_on') %></th>
       <th><%= attr_i18n('dest', 'prefecture') %></th>
+      <th><%= DestDatedValue.codes_i18n[:area_id] %></th>
+      <th><%= DestDatedValue.codes_i18n[:supervisor_id] %></th>
       <th></th>
     </tr>
   </thead>
   <tbody>
   <% @dests.each do |dest| %>
+    <% dated_values = dest.recent_dated_values(@current_date) %>
     <tr>
       <td><%= dest.code %></td>
       <td><%= dest.name %></td>
@@ -63,6 +68,8 @@
       <td><%= dest.opened_on %></td>
       <td><%= dest.closed_on %></td>
       <td><%= prefecture_i18n(dest.prefecture) %></td>
+      <td><%= Area.find_by_id(dated_values[:area_id]&.value)&.name %></td>
+      <td><%= User.find_by_id(dated_values[:supervisor_id]&.value)&.name %></td>
       <td>
         <%= link_to view_i18n('edit'), edit_dest_path(dest), class: 'btn btn-primary btn-xs' %>
         <%= link_to view_i18n('delete'), dest, method: :delete, data: { confirm: 'Are you sure?' }, class: 'btn btn-danger btn-xs' %>

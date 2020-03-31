@@ -4,6 +4,8 @@ class DestsController < ApplicationController
   # GET /dests
   # GET /dests.json
   def index
+    @current_date = Date.today
+    dated_params = {}
     @dests = Dest.all
     if params[:search].present?
       @dests = @dests.search(params[:search])
@@ -23,6 +25,11 @@ class DestsController < ApplicationController
     if params[:prefecture].present?
       @dests = @dests.where(prefecture: params[:prefecture])
     end
+    if params[:area_id].present?
+      dated_params[:area_id] = params[:area_id]
+    end
+    # @dests = @dests.eager_load(:dest_dated_values)
+    @dests = @dests.with_dated_values(@current_date, dated_params) if dated_params.present?
     @dests = @dests.page(params[:page])
   end
 

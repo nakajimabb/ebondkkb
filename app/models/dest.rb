@@ -1,5 +1,6 @@
 class Dest < ApplicationRecord
   belongs_to :company
+  has_many :dest_dated_values, dependent: :destroy
 
   enum dest_type: {shop: 1, department: 2, haken: 3, outside: 4, paid_holiday: 11, legal_holiday: 12}
   enum prefecture: Prefecture::CODES
@@ -43,7 +44,33 @@ class Dest < ApplicationRecord
     active(day, [:opened_on, :started_on, :finished_on])
   end
 
+  scope :with_dated_values, -> (date, params) do
+    dests = all
+    params.each do |code, value|
+      joined = "dated_values_#{code}"
+      code = DestDatedValue.codes[code]
+      dests = dests.joins("join dest_dated_values #{joined} on dests.id = #{joined}.dest_id")
+      dests = dests.where("#{joined}.dated_on = (select max(dated_on) from dest_dated_values where dated_on <= ? and dest_id = dests.id and code = ?)", date, code)
+      dests = dests.where(joined => {code: code, value: value})
+      dests
+    end
+    dests.group(:id)
+  end
+
   def name_with_code
     "#{name}(#{code})"
+  end
+
+  def recent_dated_values(date, future=false)
+    results = {}
+    sorted_dated_values = dest_dated_values.to_a.sort_by(&:dated_on)
+    sorted_dated_values.each do |udv|
+      code = udv.code.to_sym
+      exists = results.has_key?(code)
+      if udv.dated_on <= date || (future && !exists)
+        results[code] = udv
+      end
+    end
+    results
   end
 end

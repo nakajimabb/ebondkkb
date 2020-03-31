@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_03_30_052728) do
+ActiveRecord::Schema.define(version: 2020_03_31_042823) do
 
   create_table "areas", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "code", limit: 16, null: false
@@ -30,6 +30,17 @@ ActiveRecord::Schema.define(version: 2020_03_30_052728) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["code"], name: "index_companies_on_code", unique: true
+  end
+
+  create_table "dest_dated_values", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.bigint "dest_id", null: false
+    t.date "dated_on", null: false
+    t.integer "code", limit: 1, null: false
+    t.integer "value"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["dest_id", "code", "dated_on"], name: "index_dest_dated_values_on_dest_id_and_code_and_dated_on", unique: true
+    t.index ["dest_id"], name: "index_dest_dated_values_on_dest_id"
   end
 
   create_table "dests", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
@@ -151,6 +162,7 @@ ActiveRecord::Schema.define(version: 2020_03_30_052728) do
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
 
+  add_foreign_key "dest_dated_values", "dests"
   add_foreign_key "dests", "companies"
   add_foreign_key "group_users", "groups"
   add_foreign_key "group_users", "users"

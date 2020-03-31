@@ -1,0 +1,16 @@
+ja:
+  activerecord:
+    models:
+      dest_dated_value: '店舗異動登録'
+    attributes:
+      dest_dated_value:
+        id: 'Id'
+        dated_on: '日付'
+        dest_id: '店舗'
+        code: '種別'
+        value: '値'
+  enums:
+    dest_dated_value:
+      code:
+        area_id: 'エリア'
+        supervisor_id: '管理薬剤師'
