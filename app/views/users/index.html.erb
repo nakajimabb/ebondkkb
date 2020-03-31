@@ -64,12 +64,17 @@
       <th><%= attr_i18n('user', 'entered_on') %></th>
       <th><%= attr_i18n('user', 'retired_on') %></th>
       <th><%= attr_i18n('user', 'prefecture') %></th>
-      <th></th>
+      <th><%= UserDatedValue.codes_i18n[:job_type] %></th>
+      <th><%= UserDatedValue.codes_i18n[:employment] %></th>
+      <th><%= UserDatedValue.codes_i18n[:suspend] %></th>
+      <th><%= UserDatedValue.codes_i18n[:area_id] %></th>
+      <th><%= UserDatedValue.codes_i18n[:company_id] %></th>
       <th></th>
     </tr>
   </thead>
   <tbody>
   <% @users.each do |user| %>
+    <% dated_values = user.recent_dated_values(@current_date, false) %>
     <tr>
       <td><%= user.code %></td>
       <td><%= user.name %></td>
@@ -78,7 +83,11 @@
       <td><%= user.entered_on %></td>
       <td><%= user.retired_on %></td>
       <td><%= prefecture_i18n(user.prefecture) %></td>
-      <td><%= user.user_dated_values.pluck(:dated_on, :code, :value) %></td>
+      <td><%= dated_values[:job_type]&.value_i18n %></td>
+      <td><%= dated_values[:employment]&.value_i18n %></td>
+      <td><%= dated_values[:suspend]&.value_i18n %></td>
+      <td><%= Area.find_by_id(dated_values[:area_id]&.value)&.name %></td>
+      <td><small><%= Company.find_by_id(dated_values[:company_id]&.value)&.name %></small></td>
       <td>
         <%= link_to view_i18n('show'), user, class: 'btn btn-default btn-xs' %>
         <%= link_to view_i18n('edit'), edit_user_path(user), class: 'btn btn-primary btn-xs' %>

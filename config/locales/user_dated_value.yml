@@ -11,12 +11,13 @@ ja:
         value: '値'
   enums:
     user_dated_value:
-      job_type: '職制'
-      table_type: 'テーブルタイプ'
-      employment: '雇用形態'
-      suspend: '休職'
-      area_id: 'エリア'
-      company_id: '所属会社'
+      code:
+        job_type: '職制'
+        table_type: 'テーブルタイプ'
+        employment: '雇用形態'
+        suspend: '休職'
+        area_id: 'エリア'
+        company_id: '所属会社'
   enum_values:
     user_dated_value:
       job_type:
@@ -35,3 +36,6 @@ ja:
         contract: '契約社員'
         advisor: '顧問'
         haken: '派遣'
+      suspend:
+        disabled: ''
+        enabled: '○'

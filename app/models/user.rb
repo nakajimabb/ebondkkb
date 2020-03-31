@@ -92,4 +92,18 @@ class User < ApplicationRecord
   def name_with_code
     name + '(' + code + ')'
   end
+
+  def recent_dated_values(date, future=false)
+    results = {}
+    # eager_load が無効にならないように配列に変換してからソート
+    sorted_dated_values = user_dated_values.to_a.sort_by(&:dated_on)
+    sorted_dated_values.each do |udv|
+      code = udv.code.to_sym
+      exists = results.has_key?(code)
+      if udv.dated_on <= date || (future && !exists)
+        results[code] = udv
+      end
+    end
+    results
+  end
 end

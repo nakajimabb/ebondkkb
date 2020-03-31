@@ -4,7 +4,7 @@ class UsersController < ApplicationController
   # GET /users
   # GET /users.json
   def index
-    today = Date.today
+    @current_date = Date.today
     udv_params = {}
     @users = User.all
     if params[:search].present?
@@ -34,8 +34,9 @@ class UsersController < ApplicationController
     if params[:area_id].present?
       udv_params[:area_id] = params[:area_id]
     end
+    # @users = @users.eager_load(:user_dated_values)
     suspend = (params[:suspend] == 'true') ? nil : false
-    @users = @users.with_dated_values(today, udv_params, suspend) if udv_params.present?
+    @users = @users.with_dated_values(@current_date, udv_params, suspend) if udv_params.present?
     @users = @users.page(params[:page])
   end
 
