@@ -16,6 +16,8 @@
                    {prompt: '--種別--'}, class: 'form-control form-control-navbar mr-1' %>
       <%= f.select :provisional, options_for_select([['仮店舗を含む', :include], ['仮店舗を含まない', :exclude], ['仮店舗のみ', :only]], params[:provisional]),
                    {include_blank: false}, class: 'form-control form-control-navbar mr-1 ascii' %>
+      <%= f.select :company_id, options_from_collection_for_select(Company.active, :id, :name, params[:company_id]),
+                   {prompt: '--会社--'}, class: 'form-control form-control-navbar mr-1' %>
       <%= f.select :area_id, options_from_collection_for_select(Area.active, :id, :name, params[:area_id]),
                    {prompt: '--ｴﾘｱ--'}, class: 'form-control form-control-navbar mr-1' %>
       <%= f.select :prefecture, options_for_select(prefecture_options, params[:prefecture]),
@@ -48,6 +50,7 @@
       <th><%= attr_i18n('dest', 'kana') %></th>
       <th><%= attr_i18n('dest', 'dest_type') %></th>
       <th><%= attr_i18n('dest', 'provisional') %></th>
+      <th><%= attr_i18n('dest', 'company_id') %></th>
       <th><%= attr_i18n('dest', 'opened_on') %></th>
       <th><%= attr_i18n('dest', 'closed_on') %></th>
       <th><%= attr_i18n('dest', 'prefecture') %></th>
@@ -65,6 +68,7 @@
       <td><%= dest.kana %></td>
       <td><%= dest.dest_type_i18n %></td>
       <td><%= '○' if dest.provisional? %></td>
+      <td><small><%= dest.company&.name %></small></td>
       <td><%= dest.opened_on %></td>
       <td><%= dest.closed_on %></td>
       <td><%= prefecture_i18n(dest.prefecture) %></td>

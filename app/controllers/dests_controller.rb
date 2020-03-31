@@ -22,6 +22,9 @@ class DestsController < ApplicationController
       when :only
         @dests = @dests.where(provisional: true)
     end
+    if params[:company_id].present?
+      @dests = @dests.where(company_id: params[:company_id])
+    end
     if params[:prefecture].present?
       @dests = @dests.where(prefecture: params[:prefecture])
     end

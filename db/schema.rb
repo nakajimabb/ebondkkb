@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_03_31_042823) do
+ActiveRecord::Schema.define(version: 2020_03_31_062837) do
 
   create_table "areas", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.string "code", limit: 16, null: false
@@ -45,7 +45,7 @@ ActiveRecord::Schema.define(version: 2020_03_31_042823) do
 
   create_table "dests", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.bigint "company_id", null: false
-    t.string "code", limit: 16, null: false
+    t.string "code", limit: 32, null: false
     t.string "name", limit: 32, default: "", null: false
     t.string "kana", limit: 32, default: "", null: false
     t.integer "dest_type", limit: 1, default: 1, null: false
@@ -104,6 +104,21 @@ ActiveRecord::Schema.define(version: 2020_03_31_042823) do
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["code"], name: "index_regions_on_code", unique: true
+  end
+
+  create_table "shift_users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.date "dated_on"
+    t.bigint "user_id", null: false
+    t.bigint "dest_id"
+    t.integer "period_type"
+    t.integer "proc_type"
+    t.integer "roster_type"
+    t.integer "frame_type"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["dated_on", "user_id", "period_type", "proc_type"], name: "index_shift_user_date_user_period_proc", unique: true
+    t.index ["dest_id"], name: "index_shift_users_on_dest_id"
+    t.index ["user_id"], name: "index_shift_users_on_user_id"
   end
 
   create_table "user_dated_values", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
@@ -168,6 +183,8 @@ ActiveRecord::Schema.define(version: 2020_03_31_042823) do
   add_foreign_key "group_users", "users"
   add_foreign_key "region_areas", "areas"
   add_foreign_key "region_areas", "regions"
+  add_foreign_key "shift_users", "dests"
+  add_foreign_key "shift_users", "users"
   add_foreign_key "user_dated_values", "users"
   add_foreign_key "users", "users", column: "parent_id"
 end
