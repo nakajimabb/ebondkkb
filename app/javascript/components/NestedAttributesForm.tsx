@@ -1,13 +1,23 @@
-import React, { useState } from 'react';
+import React, { FormEvent, useState } from 'react';
 import Pager from './Pager';
 
-const NestedAttributesForm = ({
+interface Props {
+  title: string;
+  data: any[];
+  newData: any;
+  changeData: (e: FormEvent, prev_data: object) => object;
+  component: React.FC<any>;
+  component_props?: object;
+  per_page?: number;
+}
+
+const NestedAttributesForm: React.FC<Props> = ({
   title,
   data,
   newData,
   changeData,
   component: Component,
-  component_props: component_props,
+  component_props: component_props = {},
   per_page = 10,
 }) => {
   const [array, setArray] = useState(data);
@@ -20,7 +30,7 @@ const NestedAttributesForm = ({
     textDecoration: 'line-through',
   };
 
-  const addData = (e) => {
+  const addData = (e: FormEvent) => {
     setArray([...array, { ...newData(), _modify: true }]);
     setEditIndex(array.length);
 
@@ -29,7 +39,7 @@ const NestedAttributesForm = ({
     e.preventDefault();
   };
 
-  const changeEditIndex = (index) => (e) => {
+  const changeEditIndex = (index) => (e: FormEvent) => {
     if (editIndex === index) {
       setEditIndex(-1);
     } else {
@@ -38,12 +48,12 @@ const NestedAttributesForm = ({
     e.preventDefault();
   };
 
-  const onChange = (index) => (e) => {
+  const onChange = (index: number) => (e: FormEvent) => {
     const new_data = { ...changeData(e, array[index]), _modify: true };
     setArray([...array.slice(0, index), new_data, ...array.slice(index + 1)]);
   };
 
-  const onDelete = (index) => (e) => {
+  const onDelete = (index: number) => (e: FormEvent) => {
     if (array[index].id) {
       const new_data = {
         ...array[index],

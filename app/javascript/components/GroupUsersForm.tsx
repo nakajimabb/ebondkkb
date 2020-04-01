@@ -1,18 +1,25 @@
-import React from 'react';
-import Select from 'react-select';
+import React, {FormEvent} from 'react';
+import SelectUser from './SelectUser';
 import NestedAttributesForm from './NestedAttributesForm';
 import { str } from '../tools/str';
 
-const RegionArea = ({
+interface GroupUserProps {
+  data: {id: number, user_id: number, user_name: string, error: string, _destroy: boolean, _modify: boolean},
+  index: number,
+  onChange: (e: FormEvent) => void,
+  onDelete: (e: FormEvent) => void,
+  editIndex: number,
+  changeEditIndex: (e: FormEvent) => void,
+}
+
+const GroupUser: React.FC<GroupUserProps> = ({
   data,
   index,
   onChange,
   onDelete,
   editIndex,
   changeEditIndex,
-  other,
 }) => {
-  const { select_options } = other;
   return (
     <>
       <td className={data.error && 'pt-2 pb-0'}>
@@ -20,31 +27,32 @@ const RegionArea = ({
           <>
             <input
               type="hidden"
-              name={`region[region_areas_attributes][${index}][id]`}
+              name={`group[group_users_attributes][${index}][id]`}
               value={str(data.id)}
             />
             <input
               type="hidden"
-              name={`region[region_areas_attributes][${index}][area_id]`}
-              value={str(data.area_id)}
+              name={`group[group_users_attributes][${index}][user_id]`}
+              value={str(data.user_id)}
             />
             {data._destroy && (
               <input
                 type="hidden"
-                name={`region[region_areas_attributes][${index}][_destroy]`}
+                name={`group[group_users_attributes][${index}][_destroy]`}
                 value={1}
               />
             )}
           </>
         )}
         {index === editIndex ? (
-          <Select
-            value={{ label: data.area_name, value: data.area_id }}
+          <SelectUser
+            isClearable={false}
+            shop={true}
+            value={{ label: data.user_name, value: data.user_id }}
             onChange={onChange}
-            options={select_options}
           />
         ) : (
-          <div style={{ height: 18 }}>{data.area_name}</div>
+          <div style={{ height: 18 }}>{data.user_name}</div>
         )}
         {data.error && (
           <div className="text-danger m-0" style={{ fontSize: '50%' }}>
@@ -67,14 +75,19 @@ const RegionArea = ({
   );
 };
 
-const RegionAreasForm = ({ title, data, component_props }) => {
-  const newData = () => ({ area_id: '', area_name: '' });
+interface Props {
+    title: string,
+    data: {id: number, user_id: number, user_name: string, error: string, _destroy: boolean, _modify: boolean}[],
+}
 
-  const changeData = (e, prev_data) => {
+const GroupUsersForm: React.FC<Props> = ({ title, data }) => {
+  const newData = () => ({ user_id: '', user_name: '' });
+
+  const changeData = (e: any, prev_data: object): object => {
     return {
       ...prev_data,
-      area_id: e.value,
-      area_name: e.label,
+      user_id: e.value,
+      user_name: e.label,
     };
   };
 
@@ -84,10 +97,9 @@ const RegionAreasForm = ({ title, data, component_props }) => {
       data={data}
       newData={newData}
       changeData={changeData}
-      component={RegionArea}
-      component_props={component_props}
+      component={GroupUser}
     />
   );
 };
 
-export default RegionAreasForm;
+export default GroupUsersForm;

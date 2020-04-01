@@ -1,18 +1,26 @@
-import React, { useState } from 'react';
+import React, {FormEvent} from 'react';
 import AsyncSelect from 'react-select/async';
 import 'react-select/dist/react-select.cjs';
 import axios from 'axios';
+
 import { name_with_code } from '../tools/name_with_code';
 import env from '../environment';
 
-const SelectUser = ({
-  isClearable,
-  isDisabled = false,
-  name,
-  value,
-  shop = true,
-  onChange,
-}) => {
+interface Props {
+  isClearable?: boolean;
+  isDisabled?: boolean;
+  name?: string;
+  value: {label: string, value: number};
+  shop?: boolean;
+  onChange: (e: FormEvent) => void;
+}
+
+const SelectUser: React.FC<Props> = ({isClearable=true,
+                                     isDisabled=false,
+                                     name,
+                                     value,
+                                     shop=true,
+                                     onChange}) => {
   const promiseOptions = (input) =>
     new Promise((resolve) => {
       const url = `${env.API_ORIGIN}/users.json?search=${input}&shop=${shop}`;
@@ -27,7 +35,6 @@ const SelectUser = ({
 
   return onChange ? (
     <AsyncSelect
-      name={name}
       value={value}
       onChange={onChange}
       isClearable={isClearable}
@@ -44,5 +51,10 @@ const SelectUser = ({
     />
   );
 };
+
+SelectUser.defaultProps = {
+    isDisabled: false
+};
+
 
 export default SelectUser;
