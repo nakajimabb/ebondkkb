@@ -23,12 +23,16 @@ class UserDatedValue < ApplicationRecord
                   },
   }
 
-  def self.enum_values(code)
-    ENUM_VALUES[code]
+  def self.enum_value(code, value)
+    if value.is_a?(Symbol) || value.is_a?(String)
+      ENUM_VALUES[code.to_sym][value.to_sym] || value
+    else
+      value
+    end
   end
 
   def value_i18n
-    value_sym = UserDatedValue.enum_values(code.to_sym).invert[value]
+    value_sym = ENUM_VALUES[code.to_sym].invert[value]
     I18n.t("enum_values.user_dated_value.#{code}.#{value_sym}")
   end
 end

@@ -8,5 +8,10 @@ Rails.application.routes.draw do
   resources :dests
   resources :areas, except: :show
   resources :regions, except: :show
+
+  scope :api do
+    get '/shift_users/shift_table'
+  end
+
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html
 end

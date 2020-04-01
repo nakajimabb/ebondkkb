@@ -68,6 +68,7 @@ class User < ApplicationRecord
     users = all
     params.each do |code, value|
       joined = "dated_values_#{code}"
+      value = UserDatedValue.enum_value(code, value)
       code = UserDatedValue.codes[code]
       users = users.joins("join user_dated_values #{joined} on users.id = #{joined}.user_id")
       users = users.where("#{joined}.dated_on = (select max(dated_on) from user_dated_values where dated_on <= ? and user_id = users.id and code = ?)", date, code)

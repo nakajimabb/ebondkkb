@@ -12,7 +12,7 @@ module ApplicationHelper
   end
 
   def user_dated_value_options(code)
-    UserDatedValue.enum_values(code).map { |key, value| [t("enum_values.user_dated_value.#{code}.#{key}"), value] }
+    UserDatedValue::ENUM_VALUES[code.to_sym].map { |key, value| [t("enum_values.user_dated_value.#{code}.#{key}"), value] }
   end
 
   def view_i18n(code, model='app')
