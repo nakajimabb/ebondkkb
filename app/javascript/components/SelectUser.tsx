@@ -52,9 +52,4 @@ const SelectUser: React.FC<Props> = ({isClearable=true,
   );
 };
 
-SelectUser.defaultProps = {
-    isDisabled: false
-};
-
-
 export default SelectUser;
