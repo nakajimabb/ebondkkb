@@ -24,7 +24,7 @@ class UserDatedValue < ApplicationRecord
   }
 
   def self.enum_value(code, value)
-    if value.is_a?(Symbol) || value.is_a?(String)
+    if ENUM_VALUES.has_key?(code.to_sym) && (value.is_a?(Symbol) || value.is_a?(String))
       ENUM_VALUES[code.to_sym][value.to_sym] || value
     else
       value
