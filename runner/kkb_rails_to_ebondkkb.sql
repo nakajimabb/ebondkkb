@@ -44,8 +44,8 @@ insert into ebondkkb_development.user_dated_values(user_id, code, dated_on, valu
 insert into ebondkkb_development.user_dated_values(user_id, code, dated_on, value, created_at, updated_at) select user_id, 7, day, company_id, created_at, updated_at from kkb_rails.user_roster_infos;
 
 -- dest_dated_values
-insert into ebondkkb_development.dest_dated_values(dest_id, code, dated_on, value, created_at, updated_at) select d.destination_id, 1, day, area_id, a.created_at, a.updated_at from kkb_rails.department_area_infos a join kkb_rails.departments d on d.id = a.department_id;
-insert into ebondkkb_development.dest_dated_values(dest_id, code, dated_on, value, created_at, updated_at) select d.destination_id, 2, day, user_id, s.created_at, s.updated_at from kkb_rails.supervisor_infos s join kkb_rails.departments d on d.id = s.department_id;
+insert into ebondkkb_development.dest_dated_values(dest_id, code, dated_on, value, created_at, updated_at) select d.destination_id, 1, day, a.area_id, a.created_at, a.updated_at from kkb_rails.department_area_infos a join kkb_rails.departments d on d.id = a.department_id;
+insert into ebondkkb_development.dest_dated_values(dest_id, code, dated_on, value, created_at, updated_at) select d.destination_id, 2, day, s.user_id, s.created_at, s.updated_at from kkb_rails.supervisor_infos s join kkb_rails.departments d on d.id = s.department_id;
 
 -- shift_users
 insert into ebondkkb_development.shift_users(dated_on, user_id, dest_id, period_type, proc_type, roster_type, frame_type, created_at, updated_at) select day, user_id, destination_id, period_type, 1, roster_type, frame_type, created_at, updated_at from kkb_rails.shift_user_designs where holiday = false;
