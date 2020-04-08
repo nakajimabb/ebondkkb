@@ -3,6 +3,7 @@ import moment from 'moment';
 import env from '../../environment';
 import Select from '../Select';
 import ShiftUserWeek from './ShiftUserWeek';
+import ShiftShopWeek from './ShiftShopWeek';
 import axios from "axios";
 
 const styles = {
@@ -27,6 +28,7 @@ const ShiftMain: React.FC<Props> = props => {
   const [user_dated_values, setUserDatedValues] = useState({});
   const [dest_dated_values, setDestDatedValues] = useState({});
   const [shift_users, setShiftUsers] = useState({});
+  const [shift_users_dest, setShiftUsersDest] = useState({});
   const [regions, setRegions] = useState([]);
   const [area_ids, setAreaIds] = useState([]);
   const job_type_options = [{label: '薬剤師', value: 'pharmacist'}, {label: '事務員', value: 'office_worker'}];
@@ -89,15 +91,47 @@ const ShiftMain: React.FC<Props> = props => {
     return new_shift_users;
   };
 
+  const formed_shift_users_dest = (shift_users: any, users: Map<number, any>): {} => {
+    const proc_types = ['daily', 'rest_week', 'custom', 'holiday', 'weekly'];
+    let shift_users_dest = {};
+    for(const date in shift_users) {
+      shift_users_dest[date] = {};
+      for(const user_id in shift_users[date]) {
+        for(const proc_type of proc_types) {
+          const shift_users_user = shift_users[date][user_id][proc_type];
+          if(!shift_users_user || shift_users_user.length === 0) continue;
+          for(const shift_user of shift_users_user) {
+            const dest_id = shift_user.dest_id;
+            if(shift_user.dest_id && shift_user.roster_type == 'at_work') {
+              shift_users_dest[date][dest_id] = shift_users_dest[date][dest_id] || [];
+              shift_users_dest[date][dest_id].push({date: date, user_id: shift_user.user_id, period_type: shift_user.period_type});
+            }
+          }
+          break;
+        }
+      }
+    }
+    return shift_users_dest;
+  };
+
   const setState = (data) => {
-    setShiftUsers(formed_shift_users(data.shift_users));
-    setUsers(new Map(data.users.map(user => [user.id, user])));
-    setDests(new Map(data.dests.map(dest => [dest.id, dest])));
+    const new_shift_users = formed_shift_users(data.shift_users);
+    setShiftUsers(new_shift_users);
+
+    const new_users: Map<number, any> = new Map(data.users.map(user => [user.id, user]));
+    setUsers(new_users);
+
+    const new_dests: Map<number, any> = new Map(data.dests.map(dest => [dest.id, dest]));
+    setDests(new_dests);
+
     const new_user_dated_values = formed_by(data.user_dated_values, 'user_id', 'code', []);
     setUserDatedValues(new_user_dated_values);
 
     const new_dest_dated_values = formed_by(data.dest_dated_values, 'dest_id', 'code', []);
     setDestDatedValues(new_dest_dated_values);
+
+    const new_shift_users_dest = formed_shift_users_dest(new_shift_users, new_users);
+    setShiftUsersDest(new_shift_users_dest);
   };
 
   const loadShiftUser = (e) => {
@@ -121,7 +155,11 @@ const ShiftMain: React.FC<Props> = props => {
   const onShiftUserChange = (date, name, shift_user) => (e) => {
     let new_shift_user, new_shift_users;
     if(name === 'dest_id')  {
-      new_shift_user = {...shift_user, dest_id: e.value, dest_name: e.label};
+      if(e) {
+        new_shift_user = {...shift_user, dest_id: e.value, dest_name: e.label};
+      } else {
+        new_shift_user = {...shift_user, dest_id: '', dest_name: ''};
+      }
     } else {
       new_shift_user = {...shift_user, [name]: e.target.value};
     }
@@ -146,7 +184,6 @@ const ShiftMain: React.FC<Props> = props => {
         <Select className="form-control mr-1" style={styles.w100} name="shift_type" options={shift_type_options} value={params.shift_type} onChange={onChange} />
         <Select className="form-control mr-1" style={styles.w100} name="area_ids" options={region_options} prompt={"-社員ｴﾘｱ-"} value={area_ids.join(',')} onChange={onChangeRegion} />
       </div>
-
       {
         (params.shift_type === 'user_week') && (
             <ShiftUserWeek dates={dates}
@@ -158,6 +195,19 @@ const ShiftMain: React.FC<Props> = props => {
                            area_ids={area_ids}
                            onChange={onShiftUserChange}
             />
+        )
+      }
+      {
+        (params.shift_type === 'shop_week') && (
+          <ShiftShopWeek dates={dates}
+                         shift_users_dest={shift_users_dest}
+                         users={users}
+                         dests={dests}
+                         user_dated_values={user_dated_values}
+                         dest_dated_values={dest_dated_values}
+                         area_ids={area_ids}
+                         // onChange={onShiftUserChange}
+          />
         )
       }
     </>
