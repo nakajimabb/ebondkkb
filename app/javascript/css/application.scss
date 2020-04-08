@@ -1,3 +1,13 @@
 .text-done {
   text-decoration: line-through;
 }
+
+.shift-user {
+  display: flex;
+  border-bottom: 1px solid gainsboro;
+  user-select: none;
+}
+
+.shift-user:last-child {
+  border-bottom: none;
+}

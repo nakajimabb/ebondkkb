@@ -1,32 +1,28 @@
-import React, { useState } from 'react';
-import { str } from '../../tools/str';
+import React, {FormEvent, useState} from 'react';
+import clsx from 'clsx';
+import ShiftUserForm from '../shift_users/ShiftUserForm';
 import { user_name_with_code, name_with_code } from '../../tools/name_with_code';
 
 
 const styles = {
   weekly: {
-    display: 'flex',
-    backgroundColor: 'floralwhite'
+    backgroundColor: 'floralwhite',
   },
   holiday: {
-    display: 'flex',
-    backgroundColor: 'floralwhite'
+    backgroundColor: 'floralwhite',
   },
   custom: {
-    display: 'flex',
-    backgroundColor: 'gold'
+    backgroundColor: 'gold',
   },
   rest_week: {
-    display: 'flex',
-    backgroundColor: 'pink'
+    backgroundColor: 'pink',
   },
   daily: {
-    display: 'flex',
-    backgroundColor: 'yellow'
+    backgroundColor: 'yellow',
   },
   td: {
-    padding: 0,
-    fontSize: '75%',
+    padding: '0 2px',
+    fontSize: '85%',
   },
   roster_type: {
     flex: '0 1 20px',
@@ -41,6 +37,9 @@ const styles = {
   dest: {
     flex: '1 0',
     paddingLeft: 2,
+  },
+  user: {
+    paddingLeft: 2,
   }
 };
 
@@ -54,12 +53,11 @@ const ShiftUser: React.FC<ShiftUserProps> = ({shift_user, dests}) => {
   const dest = dests.get(shift_user.dest_id);
   const texts = {at_work: '○', legal_holiday: '☓', paid_holiday: '有', full: '全', am: '前', pm: '後', night: '夜'};
 
-  if(!dest) return null;
   return (
-    <div style={styles[shift_user.proc_type]}>
+    <div className="shift-user" style={styles[shift_user.proc_type]}>
       <div className="badge badge-success" style={styles.roster_type}>{ texts[shift_user.roster_type] }</div>
       <div className="badge badge-info" style={styles.period_type}>{ texts[shift_user.period_type] }</div>
-      <div style={styles.dest}>{ dest.name }</div>
+      <div className="text-nowrap"  style={styles.dest}>{ dest && dest.name }</div>
     </div>
   );
 };
@@ -70,9 +68,13 @@ interface UserFrameProps {
   user: any;
   shift_users_user?: {weekly: any, holiday: any, custom: any, rest_week: any, daily: any};
   dests: Map<number, any>;
+  selected: {date: string, user_id: null | number};
+  setSelected: any;
+  onChange: (date: string, name: string, shift_user: any) => (e: FormEvent) => void,
 }
 
-const UserFrame: React.FC<UserFrameProps> = ({date, user, shift_users_user, dests}) => {
+const UserFrame: React.FC<UserFrameProps> = ({date, user, shift_users_user, dests, selected, setSelected, onChange}) => {
+  const is_selected = ((selected.date === date) && (selected.user_id === user.id));
   let shift_users = null;
   if(shift_users_user) {
     if(shift_users_user.daily.length > 0)           shift_users = shift_users_user.daily;
@@ -83,10 +85,21 @@ const UserFrame: React.FC<UserFrameProps> = ({date, user, shift_users_user, dest
   }
   if(!shift_users) return <td></td>;
 
+  const onClose = () => {
+    setSelected({user_id: null, date: null});
+  };
+
+  const onSave = () => {
+
+  };
+
   return (
-    <td className="shift_frame" style={styles.td}>
+    <td className={clsx(is_selected && 'font-weight-bold')} style={styles.td} onDoubleClick={() => setSelected({date: date, user_id: user.id})}>
       {
-        shift_users.map((shift_user, index) => <ShiftUser key={index} shift_user={shift_user} dests={dests} /> )
+        shift_users.map((shift_user, index) => <ShiftUser key={index} shift_user={shift_user} dests={dests} />)
+      }
+      {
+        is_selected && <ShiftUserForm date={date} user={user} shift_users_user={shift_users_user} dests={dests} onChange={onChange} onClose={onClose} />
       }
     </td>
   );
@@ -101,10 +114,12 @@ interface Props {
   user_dated_values: {};
   dest_dated_values: {};
   area_ids: number[];
+  onChange: (date: string, name: string, shift_user: any) => (e: FormEvent) => void,
 }
 
 const ShiftUserWeek: React.FC<Props> = (props) => {
-  const {dates, shift_users, users, dests, user_dated_values, dest_dated_values, area_ids} = props;
+  const {dates, shift_users, users, dests, user_dated_values, dest_dated_values, area_ids, onChange} = props;
+  const [selected, setSelected] = useState({date: null, user_id: null});
 
   const visibleUser = (dest: {id: number}, area_ids: number[]): boolean => {
     const dated_value = user_dated_values[dest.id] && user_dated_values[dest.id]['area_id'];
@@ -127,14 +142,17 @@ const ShiftUserWeek: React.FC<Props> = (props) => {
         const class_name: string = visibleUser(user, area_ids) ? '' : 'd-none';
         return (
           <tr key={index} className={class_name} >
-            <td className="shift_frame" style={styles.td}>{user_name_with_code(user)}</td>
+            <td className="text-nowrap" style={styles.td}>{user_name_with_code(user)}</td>
             {
               dates.map((date, index) => (
                     <UserFrame key={index}
                                date={date}
                                user={user}
                                dests={dests}
+                               selected={selected}
+                               setSelected={setSelected}
                                shift_users_user={shift_users[date][user.id]}
+                               onChange={onChange}
                     />
               ))
             }

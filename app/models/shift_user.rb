@@ -8,6 +8,14 @@ class ShiftUser < ApplicationRecord
   # weekly: 基本設計, holiday: 基本設計(祝日), custom: カスタム, rest_week: 祝日処理, daily: 日別, waiting: 許可待(日別)
   enum proc_type: {weekly: 1, holiday: 2, custom: 3, rest_week: 4, daily: 5, waiting: 6}
 
+  def dest_name
+    dest&.name.to_s
+  end
+
+  def dest_name_with_code
+    dest&.name_with_code.to_s
+  end
+
   def self.shift_users_weekly(span, user_id=nil)
     results = {}
     span.each do |date|

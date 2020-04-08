@@ -12,12 +12,12 @@ interface Props {
 
 const Select: React.FC<Props> = ({value, options, prompt=null, onChange, ...other}) => {
   return (
-      <select onChange={onChange} {...other} >
-          { prompt !== null && <option>{ prompt }</option> }
-          { options.map((option, index) => (
-              <option key={index} value={option.value}>{option.label}</option>
-          )) }
-      </select>
+    <select onChange={onChange} {...other} >
+      { prompt !== null && <option>{ prompt }</option> }
+      { options.map((option, index) => (
+        <option key={index} value={option.value} selected={option.value === value}>{option.label}</option>
+      )) }
+    </select>
   );
 };
 

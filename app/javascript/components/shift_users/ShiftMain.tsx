@@ -1,7 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import moment from 'moment';
-import { str } from '../../tools/str';
-import { user_name_with_code, name_with_code } from '../../tools/name_with_code';
 import env from '../../environment';
 import Select from '../Select';
 import ShiftUserWeek from './ShiftUserWeek';
@@ -23,7 +21,7 @@ interface Props {
 }
 
 const ShiftMain: React.FC<Props> = props => {
-  const [params, setParams] = useState({start_date: '2020-03-03', end_date: '2020-03-03', job_type: 'pharmacist', shift_type: 'user_week'});
+  const [params, setParams] = useState({start_date: '2020-03-03', end_date: '2020-03-03', job_type: 'pharmacist', shift_type: 'user_week', shop_region: ''});
   const [users, setUsers] = useState(new Map<number, any>());
   const [dests, setDests] = useState(new Map<number, any>());
   const [user_dated_values, setUserDatedValues] = useState({});
@@ -42,6 +40,14 @@ const ShiftMain: React.FC<Props> = props => {
     date_of_weeks.set(date.getDay(), moment(date).format('YYYY-MM-DD'));
   }
   const dates = Array.from(date_of_weeks.values());
+
+  useEffect(() => {
+    const url = `${env.API_ORIGIN}/regions.json`;
+    axios.get(url).then(({data}) => {
+      setRegions(data);
+      // setAreaIds(data.area_ids);
+    });
+  }, []);
 
   const formed_by = (data :object[], key_name: string, sub_key_name, order_key_names: string[]): {} => {
     let result = {};
@@ -92,14 +98,11 @@ const ShiftMain: React.FC<Props> = props => {
 
     const new_dest_dated_values = formed_by(data.dest_dated_values, 'dest_id', 'code', []);
     setDestDatedValues(new_dest_dated_values);
-
-    setRegions(data.regions);
-    setAreaIds(data.regions[0].area_ids);
   };
 
   const loadShiftUser = (e) => {
-    const url = `${env.API_ORIGIN}/api/shift_users/shift_table?start_date=${params.start_date}&end_date=${params.end_date}&job_type=${params.job_type}`;
-    axios.get(url).then(({data}) => {
+    const url = `${env.API_ORIGIN}/api/shift_users/shift_table.json`;
+    axios.get(url, {params}).then(({data}) => {
       setState(data);
     })
   };
@@ -114,17 +117,34 @@ const ShiftMain: React.FC<Props> = props => {
     setAreaIds(new_area_ids);
   };
 
+
+  const onShiftUserChange = (date, name, shift_user) => (e) => {
+    let new_shift_user, new_shift_users;
+    if(name === 'dest_id')  {
+      new_shift_user = {...shift_user, dest_id: e.value, dest_name: e.label};
+    } else {
+      new_shift_user = {...shift_user, [name]: e.target.value};
+    }
+    new_shift_user._modify = true;
+
+    new_shift_users = {...shift_users[date]};
+    new_shift_users[shift_user.user_id][shift_user.proc_type] = [new_shift_user];
+
+    setShiftUsers({...shift_users, [date]: new_shift_users});
+  };
+
   return (
     <>
       <div className="input-group input-group-sm mb-1">
         <input className="form-control mr-1" type="date" name="start_date" style={styles.w140} value={params.start_date} onChange={onChange} />
         <input className="form-control mr-1" type="date" name="end_date" style={styles.w140} value={params.end_date} onChange={onChange} />
         <Select className="form-control mr-1" style={styles.w100} name="job_type" options={job_type_options} value={params.job_type} onChange={onChange} />
+        <Select className="form-control mr-1" style={styles.w100} name="shop_area_ids" options={region_options} prompt={"-店舗ｴﾘｱ-"} value={area_ids.join(',')} onChange={onChange} />
         <button className="btn btn-sm btn-outline-primary" onClick={loadShiftUser} >読込</button>
       </div>
       <div className="input-group input-group-sm mb-2">
         <Select className="form-control mr-1" style={styles.w100} name="shift_type" options={shift_type_options} value={params.shift_type} onChange={onChange} />
-        <Select className="form-control mr-1" style={styles.w100} name="area_ids" options={region_options} prompt={"--ｴﾘｱ--"} value={area_ids.join(',')} onChange={onChangeRegion} />
+        <Select className="form-control mr-1" style={styles.w100} name="area_ids" options={region_options} prompt={"-社員ｴﾘｱ-"} value={area_ids.join(',')} onChange={onChangeRegion} />
       </div>
 
       {
@@ -136,6 +156,7 @@ const ShiftMain: React.FC<Props> = props => {
                            user_dated_values={user_dated_values}
                            dest_dated_values={dest_dated_values}
                            area_ids={area_ids}
+                           onChange={onShiftUserChange}
             />
         )
       }

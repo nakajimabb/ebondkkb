@@ -2,33 +2,32 @@ import React, {FormEvent} from 'react';
 import AsyncSelect from 'react-select/async';
 import 'react-select/dist/react-select.cjs';
 import axios from 'axios';
-
-import { user_name_with_code } from '../tools/name_with_code';
+import { name_with_code, filter_properties } from '../tools/index';
 import env from '../environment';
 
 interface Props {
   isClearable?: boolean;
   isDisabled?: boolean;
   name?: string;
+  dest_type?: string;
   value: {label: string, value: number};
-  shop?: boolean;
   onChange: (e: FormEvent) => void;
 }
 
-const SelectUser: React.FC<Props> = ({isClearable=true,
+const SelectDest: React.FC<Props> = ({isClearable=true,
                                      isDisabled=false,
                                      name,
                                      value,
-                                     shop=true,
+                                     dest_type,
                                      onChange}) => {
   const promiseOptions = (input) =>
     new Promise((resolve) => {
-      const url = `${env.API_ORIGIN}/users.json`;
-      const params = {search: input, shop};
+      const url = `${env.API_ORIGIN}/dests.json`;
+      let params = filter_properties({search: input, dest_type}, property => !!property);
       axios.get(url, {params}).then((response) => {
-        const options = response.data.map((user) => ({
-          label: user_name_with_code(user),
-          value: user.id,
+        const options = response.data.map((dest) => ({
+          label: name_with_code(dest),
+          value: dest.id,
         }));
         resolve(options);
       });
@@ -53,4 +52,4 @@ const SelectUser: React.FC<Props> = ({isClearable=true,
   );
 };
 
-export default SelectUser;
+export default SelectDest;
