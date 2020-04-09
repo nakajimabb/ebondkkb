@@ -53,3 +53,16 @@ insert into ebondkkb_development.shift_users(dated_on, user_id, dest_id, period_
 insert into ebondkkb_development.shift_users(dated_on, user_id, dest_id, period_type, proc_type, roster_type, frame_type, created_at, updated_at) select day, user_id, destination_id, 0,           4, 1, 1, created_at, updated_at from kkb_rails.shift_user_holidays;
 insert into ebondkkb_development.shift_users(dated_on, user_id, dest_id, period_type, proc_type, roster_type, frame_type, created_at, updated_at) select day, user_id, destination_id, period_type, 5, roster_type, frame_type, created_at, updated_at from kkb_rails.shift_users where status = 1;
 insert into ebondkkb_development.shift_users(dated_on, user_id, dest_id, period_type, proc_type, roster_type, frame_type, created_at, updated_at) select day, user_id, destination_id, period_type, 6, roster_type, frame_type, created_at, updated_at from kkb_rails.shift_users where status = 2;
+
+-- kkbs
+insert into ebondkkb_development.kkb_categories(id, code, name, rank, parent_id, created_at, updated_at)
+select id, code, name, rank, parent_id, Now(), Now() from kkb_rails.kkb_categories;
+
+insert into ebondkkb_development.kkbs(id, kkb_type, kkb_category_id, title, content, posted_by_id, status, open, created_at, updated_at)
+select id, kkb_type, kkb_category_id, title, comment, user_id, status, openness, created_at, updated_at from kkb_rails.kkbs where user_id is not null and kkb_category_id is not null;
+
+insert into ebondkkb_development.kkb_users(kkb_id, user_id, permission, created_at, updated_at)
+select t1.kkb_id, t1.user_id, t1.member_type, now(), now() from (select kkb_id, user_id, max(member_type) as member_type from kkb_rails.kkb_members group by kkb_id, user_id) t1;
+
+insert into ebondkkb_development.kkb_groups(kkb_id, group_id, permission, created_at, updated_at)
+select t1.kkb_id, t1.group_id, t1.member_type, now(), now() from (select kkb_id, group_id, max(member_type) as member_type from kkb_rails.kkb_groups group by kkb_id, group_id) t1;

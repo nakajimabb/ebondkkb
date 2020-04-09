@@ -8,6 +8,7 @@ Rails.application.routes.draw do
   resources :dests
   resources :areas, except: :show
   resources :regions, except: :show
+  resources :kkbs
   get '/shift_users/main', as: 'shift_users_main'
 
   scope :api do

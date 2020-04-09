@@ -1,0 +1,12 @@
+<div class="card card-outline card-primary">
+  <div class="card-header">
+    <h3 class="card-title text-xs">
+      <%= "#{sprintf("%d", @kkb.id)} #{@kkb.title}" %>
+    </h3>
+  </div>
+  <div class="card-body text-xs">
+    <%= simple_format(@kkb.content) %>
+  </div>
+</div>
+
+<%= link_to 'Back', kkbs_path %>

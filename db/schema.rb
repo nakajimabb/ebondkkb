@@ -86,6 +86,62 @@ ActiveRecord::Schema.define(version: 2020_03_31_062837) do
     t.index ["code"], name: "index_groups_on_code", unique: true
   end
 
+  create_table "kkb_categories", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.string "code", null: false
+    t.string "name", null: false
+    t.integer "rank"
+    t.bigint "parent_id"
+    t.bigint "created_by_id"
+    t.bigint "updated_by_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["code"], name: "index_kkb_categories_on_code", unique: true
+    t.index ["created_by_id"], name: "index_kkb_categories_on_created_by_id"
+    t.index ["parent_id"], name: "index_kkb_categories_on_parent_id"
+    t.index ["updated_by_id"], name: "index_kkb_categories_on_updated_by_id"
+  end
+
+  create_table "kkb_groups", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.bigint "kkb_id", null: false
+    t.bigint "group_id", null: false
+    t.integer "permission", limit: 1, null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["group_id"], name: "index_kkb_groups_on_group_id"
+    t.index ["kkb_id", "group_id"], name: "index_kkb_groups_on_kkb_id_and_group_id", unique: true
+    t.index ["kkb_id"], name: "index_kkb_groups_on_kkb_id"
+  end
+
+  create_table "kkb_users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.bigint "kkb_id", null: false
+    t.bigint "user_id", null: false
+    t.integer "permission", limit: 1, null: false
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["kkb_id", "user_id"], name: "index_kkb_users_on_kkb_id_and_user_id", unique: true
+    t.index ["kkb_id"], name: "index_kkb_users_on_kkb_id"
+    t.index ["user_id"], name: "index_kkb_users_on_user_id"
+  end
+
+  create_table "kkbs", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
+    t.integer "kkb_type", null: false
+    t.bigint "kkb_category_id", null: false
+    t.string "title"
+    t.text "content"
+    t.bigint "posted_by_id", null: false
+    t.integer "status", limit: 1
+    t.boolean "open", default: true, null: false
+    t.datetime "checked_at"
+    t.bigint "created_by_id"
+    t.bigint "updated_by_id"
+    t.datetime "created_at", precision: 6, null: false
+    t.datetime "updated_at", precision: 6, null: false
+    t.index ["created_by_id"], name: "index_kkbs_on_created_by_id"
+    t.index ["kkb_category_id"], name: "index_kkbs_on_kkb_category_id"
+    t.index ["posted_by_id"], name: "index_kkbs_on_posted_by_id"
+    t.index ["updated_by_id"], name: "index_kkbs_on_updated_by_id"
+  end
+
   create_table "region_areas", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
     t.bigint "region_id", null: false
     t.bigint "area_id", null: false
@@ -181,6 +237,17 @@ ActiveRecord::Schema.define(version: 2020_03_31_062837) do
   add_foreign_key "dests", "companies"
   add_foreign_key "group_users", "groups"
   add_foreign_key "group_users", "users"
+  add_foreign_key "kkb_categories", "kkb_categories", column: "parent_id"
+  add_foreign_key "kkb_categories", "users", column: "created_by_id"
+  add_foreign_key "kkb_categories", "users", column: "updated_by_id"
+  add_foreign_key "kkb_groups", "groups"
+  add_foreign_key "kkb_groups", "kkbs"
+  add_foreign_key "kkb_users", "kkbs"
+  add_foreign_key "kkb_users", "users"
+  add_foreign_key "kkbs", "kkb_categories"
+  add_foreign_key "kkbs", "users", column: "created_by_id"
+  add_foreign_key "kkbs", "users", column: "posted_by_id"
+  add_foreign_key "kkbs", "users", column: "updated_by_id"
   add_foreign_key "region_areas", "areas"
   add_foreign_key "region_areas", "regions"
   add_foreign_key "shift_users", "dests"
