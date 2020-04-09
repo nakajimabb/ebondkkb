@@ -18,6 +18,8 @@ class Kkb < ApplicationRecord
                   off_hours_report: 10800, accident_report: 10810, internal_history: 10900}
   enum status: {denial: 0, waiting: 1, active: 2, pending: 3, closed: 4, draft: 5}
 
+  REGISTRABLE_ATTRIBUTES = %i(kkb_type kkb_category_id title content posted_by_id status open created_by_id updated_by_id)
+
   def set_created_or_updated_by(user_id)
     if new_record?
       self.created_by_id = user_id
