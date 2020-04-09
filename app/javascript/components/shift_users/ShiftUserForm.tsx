@@ -82,7 +82,7 @@ const ShiftUserForm: React.FC<Props> = ({date, user, shift_users_user, dests, on
   };
 
   return (
-    <Dialog title={title} onClose={onClose} >
+    <Dialog>
       <DialogTitle onClose={onClose}>{ title }</DialogTitle>
       <DialogContent>
         <ShiftUserFields title="基本設計" shift_users={shift_users_user.weekly} date={date} onChange={onChange} />

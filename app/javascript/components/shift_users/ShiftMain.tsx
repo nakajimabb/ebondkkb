@@ -96,7 +96,7 @@ const ShiftMain: React.FC<Props> = props => {
     return new_shift_users;
   };
 
-  const formed_shift_users_dest = (shift_users: any, users: Map<number, any>): {} => {
+  const formed_shift_users_dest = (shift_users: any): {} => {
     const proc_types = ['daily', 'rest_week', 'custom', 'holiday', 'weekly'];
     let shift_users_dest = {};
     for(const date in shift_users) {
@@ -135,7 +135,7 @@ const ShiftMain: React.FC<Props> = props => {
     const new_dest_dated_values = formed_by(data.dest_dated_values, 'dest_id', 'code', []);
     setDestDatedValues(new_dest_dated_values);
 
-    const new_shift_users_dest = formed_shift_users_dest(new_shift_users, new_users);
+    const new_shift_users_dest = formed_shift_users_dest(new_shift_users);
     setShiftUsersDest(new_shift_users_dest);
 
     setCurDate(params.start_date);

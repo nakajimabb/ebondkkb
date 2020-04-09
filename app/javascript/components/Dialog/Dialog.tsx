@@ -1,21 +1,22 @@
 import React from 'react';
+import Draggable from 'react-draggable';
 
 interface Props {
-  title: string;
-  onClose: any;
   children?: any;
 }
 
-export const Dialog: React.FC<Props> = ({title, onClose, children}) => {
+export const Dialog: React.FC<Props> = ({children}) => {
   return (
-    <div className="modal fade show" id="modal-default" style={{display: 'block'}} aria-modal="true">
-      <div className="modal-dialog">
-        <div className="modal-content">
-          <div className="modal-body">
-            { children }
+    <Draggable>
+      <div className="modal fade show" style={{display: 'block'}} aria-modal="true">
+        <div className="modal-dialog">
+          <div className="modal-content">
+            <div className="modal-body">
+              { children }
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </Draggable>
   );
 };
