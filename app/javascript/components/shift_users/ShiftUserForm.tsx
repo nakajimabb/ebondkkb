@@ -5,46 +5,6 @@ import { Dialog, DialogTitle, DialogContent, DialogActions } from '../Dialog/ind
 import { user_name_with_code } from '../../tools/name_with_code';
 
 
-const styles = {
-  weekly: {
-    backgroundColor: 'floralwhite',
-  },
-  holiday: {
-    backgroundColor: 'floralwhite',
-  },
-  custom: {
-    backgroundColor: 'gold',
-  },
-  rest_week: {
-    backgroundColor: 'pink',
-  },
-  daily: {
-    backgroundColor: 'yellow',
-  },
-  td: {
-    padding: '0 2px',
-    fontSize: '75%',
-  },
-  roster_type: {
-    flex: '0 1 20px',
-    padding: 2,
-    lineHeight: 'initial',
-  },
-  period_type: {
-    flex: '0 1 20px',
-    padding: 2,
-    lineHeight: 'initial',
-  },
-  dest: {
-    flex: '1 0',
-    paddingLeft: 2,
-  },
-  user: {
-    paddingLeft: 2,
-  }
-};
-
-
 interface ShiftUserInputProps {
   date: string;
   shift_user: any;

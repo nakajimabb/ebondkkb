@@ -1,0 +1,68 @@
+.shift-daily {
+    display: flex;
+}
+
+.shift-assigned {
+    flex-shrink: 1;
+    margin: 10px;
+    user-select: none;
+}
+
+.shift-unassigned {
+    flex-shrink: 0;
+    width: 350px;
+    margin: 10px;
+    user-select: none;
+}
+
+.dest-row {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.dest-frame {
+    width: 160px;
+    font-size: 85%;
+    flex-shrink: 0;
+}
+
+.user-frame {
+    width: 150px;
+    font-size: 85%;
+    flex-shrink: 0;
+}
+
+.user-frame-full {
+    width: 200px;
+    font-size: 85%;
+}
+
+.weekly {
+    background-color: floralwhite;
+}
+
+.holiday {
+    background-color: floralwhite;
+}
+
+.custom {
+    background-color: gold;
+}
+
+.rest_week {
+    background-color: pink;
+}
+
+.daily {
+    background-color: yellow;
+}
+
+.shift-user {
+    display: flex;
+    border-bottom: 1px solid gainsboro;
+    user-select: none;
+}
+
+.shift-user:last-child {
+    border-bottom: none;
+}

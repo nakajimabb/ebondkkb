@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, FormEvent} from 'react';
 import moment from 'moment';
 import env from '../../environment';
 import Select from '../Select';
 import ShiftUserWeek from './ShiftUserWeek';
 import ShiftShopWeek from './ShiftShopWeek';
+import ShiftShopDaily from './ShiftShopDaily';
+import ShiftUserForm from '../shift_users/ShiftUserForm';
 import axios from "axios";
 
 const styles = {
@@ -31,8 +33,11 @@ const ShiftMain: React.FC<Props> = props => {
   const [shift_users_dest, setShiftUsersDest] = useState({});
   const [regions, setRegions] = useState([]);
   const [area_ids, setAreaIds] = useState([]);
+  const [cur_date, setCurDate] = useState('');
+  const [selected, setSelected] = useState({date: null, user_id: null});
+
   const job_type_options = [{label: '薬剤師', value: 'pharmacist'}, {label: '事務員', value: 'office_worker'}];
-  const shift_type_options = [{label: '人別', value: 'user_week'}, {label: '店別', value: 'shop_week'}, {label: 'ｼﾌﾄﾒｲﾝ', value: 'shop_daily'}];
+  const shift_type_options = [{label: '人別', value: 'user_week'}, {label: '店別', value: 'shop_week'}, {label: '日別', value: 'shop_daily'}];
   const region_options = regions.map(region => ({label: region.name, value: region.area_ids}));
 
   const from = moment(params.start_date).toDate();
@@ -104,7 +109,7 @@ const ShiftMain: React.FC<Props> = props => {
             const dest_id = shift_user.dest_id;
             if(shift_user.dest_id && shift_user.roster_type == 'at_work') {
               shift_users_dest[date][dest_id] = shift_users_dest[date][dest_id] || [];
-              shift_users_dest[date][dest_id].push({date: date, user_id: shift_user.user_id, period_type: shift_user.period_type});
+              shift_users_dest[date][dest_id].push({date: date, user_id: shift_user.user_id, period_type: shift_user.period_type, proc_type: shift_user.proc_type});
             }
           }
           break;
@@ -132,6 +137,8 @@ const ShiftMain: React.FC<Props> = props => {
 
     const new_shift_users_dest = formed_shift_users_dest(new_shift_users, new_users);
     setShiftUsersDest(new_shift_users_dest);
+
+    setCurDate(params.start_date);
   };
 
   const loadShiftUser = (e) => {
@@ -151,6 +158,9 @@ const ShiftMain: React.FC<Props> = props => {
     setAreaIds(new_area_ids);
   };
 
+  const onChangeDate = (e) => {
+    setCurDate(e.target.value);
+  };
 
   const onShiftUserChange = (date, name, shift_user) => (e) => {
     let new_shift_user, new_shift_users;
@@ -171,6 +181,14 @@ const ShiftMain: React.FC<Props> = props => {
     setShiftUsers({...shift_users, [date]: new_shift_users});
   };
 
+  const onFormSelected = (date, user_id) => () => {
+    setSelected({date, user_id});
+  };
+
+  const onFormClose = () => {
+    setSelected({date: null, user_id: null});
+  };
+
   return (
     <>
       <div className="input-group input-group-sm mb-1">
@@ -182,7 +200,18 @@ const ShiftMain: React.FC<Props> = props => {
       </div>
       <div className="input-group input-group-sm mb-2">
         <Select className="form-control mr-1" style={styles.w100} name="shift_type" options={shift_type_options} value={params.shift_type} onChange={onChange} />
-        <Select className="form-control mr-1" style={styles.w100} name="area_ids" options={region_options} prompt={"-社員ｴﾘｱ-"} value={area_ids.join(',')} onChange={onChangeRegion} />
+        <Select className="form-control mr-1" style={styles.w100} name="area_ids" options={region_options} prompt={"-ｴﾘｱ-"} value={area_ids.join(',')} onChange={onChangeRegion} />
+        {
+          (params.shift_type === 'shop_daily') && (
+            <Select className="form-control mr-1"
+                    style={styles.w100}
+                    name="cur_date"
+                    options={ dates.map(date => ({label: date, value: date})) }
+                    value={area_ids.join(',')}
+                    onChange={onChangeDate}
+            />
+          )
+        }
       </div>
       {
         (params.shift_type === 'user_week') && (
@@ -193,7 +222,7 @@ const ShiftMain: React.FC<Props> = props => {
                            user_dated_values={user_dated_values}
                            dest_dated_values={dest_dated_values}
                            area_ids={area_ids}
-                           onChange={onShiftUserChange}
+                           onFormSelected={onFormSelected}
             />
         )
       }
@@ -206,7 +235,32 @@ const ShiftMain: React.FC<Props> = props => {
                          user_dated_values={user_dated_values}
                          dest_dated_values={dest_dated_values}
                          area_ids={area_ids}
-                         // onChange={onShiftUserChange}
+          />
+        )
+      }
+      {
+        (params.shift_type === 'shop_daily') && (
+          <ShiftShopDaily  date={cur_date}
+                           shift_users={shift_users[cur_date]}
+                           shift_users_dest={shift_users_dest[cur_date]}
+                           users={users}
+                           dests={dests}
+                           user_dated_values={user_dated_values}
+                           dest_dated_values={dest_dated_values}
+                           regions={regions}
+                           area_ids={area_ids}
+                           onFormSelected={onFormSelected}
+          />
+        )
+      }
+      {
+        (selected.date && selected.user_id) && (
+          <ShiftUserForm date={selected.date}
+                         user={users.get(selected.user_id)}
+                         shift_users_user={shift_users[selected.date][selected.user_id]}
+                         dests={dests}
+                         onChange={onShiftUserChange}
+                         onClose={onFormClose}
           />
         )
       }

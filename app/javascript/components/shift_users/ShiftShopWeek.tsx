@@ -1,5 +1,6 @@
 import React from 'react';
 import { full_name, name_with_code } from '../../tools/name_with_code';
+import './styles.css';
 
 
 interface DestFrameProps {
@@ -9,13 +10,13 @@ interface DestFrameProps {
   shift_users_dest: any[];
 }
 
-const DestFrame: React.FC<DestFrameProps> = ({date, dest, users, shift_users_dest}) => {
+const FrameDate: React.FC<DestFrameProps> = ({date, dest, users, shift_users_dest}) => {
   if(!shift_users_dest) return null;
 
   return (
     <>
       { shift_users_dest.map((shift_user, index) => (
-        <div key={index}>{ full_name(users.get(shift_user.user_id)) }</div>
+        <div key={index} className={shift_user.proc_type}>{ full_name(users.get(shift_user.user_id)) }</div>
       ))
       }
     </>
@@ -57,13 +58,12 @@ const ShiftShopWeek: React.FC<Props> = (props) => {
         const class_name: string = visibleDest(dest, area_ids) ? '' : 'd-none';
         return (
             <tr key={index} className={class_name} >
-              <td>{ name_with_code(dest) }</td>
+              <td className="dest-frame">{ name_with_code(dest) }</td>
               {
                 dates.map((date, index) => (
-                  <td>
+                  <td key={index} className="user-frame">
                     {
-                      <DestFrame key={index}
-                                 date={date}
+                      <FrameDate date={date}
                                  dest={dest}
                                  users={users}
                                  shift_users_dest={shift_users_dest[date][dest.id]}
