@@ -176,6 +176,23 @@ scratch. This page gets rid of all links and provides the needed markup only.
                with font-awesome or any other icon font library -->
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-th-large"></i>
+              <p>
+                KKB板
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item">
+                <%= link_to kkbs_path, class: 'nav-link' do %>
+                  <i class="far fa-circle nav-icon"></i>
+                  <p>すべての板</p>
+                <% end %>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
               <i class="nav-icon fas fa-calendar-alt"></i>
               <p>
                 シフト関連
