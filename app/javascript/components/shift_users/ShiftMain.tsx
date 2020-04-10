@@ -96,25 +96,30 @@ const ShiftMain: React.FC<Props> = props => {
     return new_shift_users;
   };
 
-  const formed_shift_users_dest = (shift_users: any): {} => {
+  const formed_shift_users_dest_date = (shift_users_date: any): {} => {
     const proc_types = ['daily', 'rest_week', 'custom', 'holiday', 'weekly'];
+    let shift_users_dest_date = {};
+    for(const user_id in shift_users_date) {
+      for(const proc_type of proc_types) {
+        const shift_users_user = shift_users_date[user_id][proc_type];
+        if(!shift_users_user || shift_users_user.length === 0) continue;
+        for(const shift_user of shift_users_user) {
+          const dest_id = shift_user.dest_id;
+          if(shift_user.dest_id && shift_user.roster_type == 'at_work') {
+            shift_users_dest_date[dest_id] = shift_users_dest_date[dest_id] || [];
+            shift_users_dest_date[dest_id].push({user_id: shift_user.user_id, period_type: shift_user.period_type, proc_type: shift_user.proc_type});
+          }
+        }
+        break;
+      }
+    }
+    return shift_users_dest_date;
+  };
+
+  const formed_shift_users_dest = (shift_users: any): {} => {
     let shift_users_dest = {};
     for(const date in shift_users) {
-      shift_users_dest[date] = {};
-      for(const user_id in shift_users[date]) {
-        for(const proc_type of proc_types) {
-          const shift_users_user = shift_users[date][user_id][proc_type];
-          if(!shift_users_user || shift_users_user.length === 0) continue;
-          for(const shift_user of shift_users_user) {
-            const dest_id = shift_user.dest_id;
-            if(shift_user.dest_id && shift_user.roster_type == 'at_work') {
-              shift_users_dest[date][dest_id] = shift_users_dest[date][dest_id] || [];
-              shift_users_dest[date][dest_id].push({date: date, user_id: shift_user.user_id, period_type: shift_user.period_type, proc_type: shift_user.proc_type});
-            }
-          }
-          break;
-        }
-      }
+      shift_users_dest[date] = formed_shift_users_dest_date(shift_users[date])
     }
     return shift_users_dest;
   };
@@ -179,6 +184,9 @@ const ShiftMain: React.FC<Props> = props => {
     new_shift_users[shift_user.user_id][shift_user.proc_type] = [new_shift_user];
 
     setShiftUsers({...shift_users, [date]: new_shift_users});
+
+    const new_shift_users_dest = formed_shift_users_dest_date(new_shift_users);
+    setShiftUsersDest({...shift_users_dest, [date]: new_shift_users_dest});
   };
 
   const onFormSelected = (date, user_id) => () => {
