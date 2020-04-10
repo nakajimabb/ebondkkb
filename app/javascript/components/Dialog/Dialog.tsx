@@ -7,7 +7,7 @@ interface Props {
 
 export const Dialog: React.FC<Props> = ({children}) => {
   return (
-    <Draggable>
+    <Draggable enableUserSelectHack={false} >
       <div className="modal fade show" style={{display: 'block'}} aria-modal="true">
         <div className="modal-dialog">
           <div className="modal-content">
