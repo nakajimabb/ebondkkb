@@ -107,7 +107,7 @@ const ShiftMain: React.FC<Props> = props => {
           const dest_id = shift_user.dest_id;
           if(shift_user.dest_id && shift_user.roster_type == 'at_work') {
             shift_users_dest_date[dest_id] = shift_users_dest_date[dest_id] || [];
-            shift_users_dest_date[dest_id].push({user_id: shift_user.user_id, period_type: shift_user.period_type, proc_type: shift_user.proc_type});
+            shift_users_dest_date[dest_id].push(shift_user);
           }
         }
         break;
@@ -189,6 +189,36 @@ const ShiftMain: React.FC<Props> = props => {
     setShiftUsersDest({...shift_users_dest, [date]: new_shift_users_dest});
   };
 
+  const active_shift_users = (date, user_id) => {
+    const shift_users_user = shift_users[date][user_id];
+    if(shift_users_user) {
+      if(shift_users_user.daily.length > 0)           return shift_users_user.daily;
+      else if(shift_users_user.rest_week.length > 0)  return shift_users_user.rest_week;
+      else if(shift_users_user.custom.length > 0)     return shift_users_user.custom;
+      else if(shift_users_user.holiday.length > 0)    return shift_users_user.holiday;
+      else if(shift_users_user.weekly.length > 0)     return shift_users_user.weekly;
+    }
+  };
+
+  const onDropShiftUser = (date, user, shift_user) => () => {
+    const shift_users_drag_user = active_shift_users(date, user.id);
+    const shift_users_drop_user = active_shift_users(date, shift_user.user_id);
+    if(shift_users_drag_user && shift_users_drop_user) {
+      const dest_name = dests.get(shift_user.dest_id).name;
+      let new_shift_drag_user = {...shift_users_drag_user[0], dest_id: shift_user.dest_id, dest_name: dest_name, roster_type: 'at_work', _modify: true};
+      let new_shift_drop_user = {...shift_users_drop_user[0], dest_id: null, dest_name: '', _modify: true};
+
+      let new_shift_users = {...shift_users[date]};
+      new_shift_users[user.id].daily = [new_shift_drag_user];
+      new_shift_users[shift_user.user_id].daily = [new_shift_drop_user];
+
+      setShiftUsers({...shift_users, [date]: new_shift_users});
+
+      const new_shift_users_dest = formed_shift_users_dest_date(new_shift_users);
+      setShiftUsersDest({...shift_users_dest, [date]: new_shift_users_dest});
+    }
+  };
+
   const onFormSelected = (date, user_id) => () => {
     setSelected({date, user_id});
   };
@@ -258,6 +288,7 @@ const ShiftMain: React.FC<Props> = props => {
                            regions={regions}
                            area_ids={area_ids}
                            onFormSelected={onFormSelected}
+                           onDropped={onDropShiftUser}
           />
         )
       }

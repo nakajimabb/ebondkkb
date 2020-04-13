@@ -12,14 +12,28 @@ interface ShiftUserInputProps {
 }
 
 const ShiftUserInput: React.FC<ShiftUserInputProps> = ({date, shift_user, onChange}) => {
-  const options = [ {label: '全', value: 'full'},
-                    {label: '前', value: 'am'},
-                    {label: '後', value: 'pm'},
-                    {label: '夜', value: 'night'}];
+  const period_type_options = [ {label: '全', value: 'full'},
+                                {label: '前', value: 'am'},
+                                {label: '後', value: 'pm'},
+                                {label: '夜', value: 'night'}];
+  const roster_type_options = [ {label: '○', value: 'at_work'},
+                                {label: '☓', value: 'legal_holiday'},
+                                {label: '有', value: 'paid_holiday'}];
   return (
     <tr>
       <td className="p-0">
-        <Select options={options} value={shift_user.period_type} onChange={onChange(date, 'period_type', shift_user)} className="form-control" />
+        <Select options={period_type_options}
+                value={shift_user.period_type}
+                onChange={onChange(date, 'period_type', shift_user)}
+                className="form-control"
+        />
+      </td>
+      <td className="p-0">
+        <Select options={roster_type_options}
+                value={shift_user.roster_type}
+                onChange={onChange(date, 'roster_type', shift_user)}
+                className="form-control"
+        />
       </td>
       <td className="p-0">
         <SelectDest

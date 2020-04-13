@@ -30,11 +30,14 @@
     width: 150px;
     font-size: 85%;
     flex-shrink: 0;
+    border: solid 1px #dee2e6;
+    box-sizing: border-box;
 }
 
 .user-frame-full {
     width: 200px;
     font-size: 85%;
+    border: solid 1px #dee2e6;
 }
 
 .weekly {
