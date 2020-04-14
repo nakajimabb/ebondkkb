@@ -6,6 +6,7 @@ import ShiftUserWeek from './ShiftUserWeek';
 import ShiftShopWeek from './ShiftShopWeek';
 import ShiftShopDaily from './ShiftShopDaily';
 import ShiftUserForm from '../shift_users/ShiftUserForm';
+import { active_shift_users, UserType, DestType, ShiftUserType, ShiftUsersUserType, ShiftUsersDestType, ShiftUsersDateDestType, ShiftUsersDateUserType } from './tools';
 import axios from "axios";
 
 const styles = {
@@ -25,8 +26,8 @@ interface Props {
 
 const ShiftMain: React.FC<Props> = props => {
   const [params, setParams] = useState({start_date: '2020-03-03', end_date: '2020-03-03', job_type: 'pharmacist', shift_type: 'user_week', shop_region: ''});
-  const [users, setUsers] = useState(new Map<number, any>());
-  const [dests, setDests] = useState(new Map<number, any>());
+  const [users, setUsers] = useState(new Map<number, UserType>());
+  const [dests, setDests] = useState(new Map<number, DestType>());
   const [user_dated_values, setUserDatedValues] = useState({});
   const [dest_dated_values, setDestDatedValues] = useState({});
   const [shift_users, setShiftUsers] = useState({});
@@ -67,7 +68,7 @@ const ShiftMain: React.FC<Props> = props => {
     return result;
   };
 
-  const formed_shift_users = (data: {weekly: any, holiday: any, custom: any, rest_week: any, daily: any}): {} => {
+  const formed_shift_users = (data: {weekly: object, holiday: object, custom: object, rest_week: object, daily: object}): ShiftUsersDateUserType => {
     let new_shift_users = {};
     for(let date of dates)
       new_shift_users[date] = {};
@@ -96,7 +97,7 @@ const ShiftMain: React.FC<Props> = props => {
     return new_shift_users;
   };
 
-  const formed_shift_users_dest_date = (shift_users_date: any): {} => {
+  const formed_shift_users_dest_date = (shift_users_date: {[user_id: number]: ShiftUsersUserType}): ShiftUsersDestType => {
     const proc_types = ['daily', 'rest_week', 'custom', 'holiday', 'weekly'];
     let shift_users_dest_date = {};
     for(const user_id in shift_users_date) {
@@ -116,7 +117,7 @@ const ShiftMain: React.FC<Props> = props => {
     return shift_users_dest_date;
   };
 
-  const formed_shift_users_dest = (shift_users: any): {} => {
+  const formed_shift_users_dest = (shift_users: ShiftUsersDateUserType): ShiftUsersDateDestType => {
     let shift_users_dest = {};
     for(const date in shift_users) {
       shift_users_dest[date] = formed_shift_users_dest_date(shift_users[date])
@@ -128,10 +129,10 @@ const ShiftMain: React.FC<Props> = props => {
     const new_shift_users = formed_shift_users(data.shift_users);
     setShiftUsers(new_shift_users);
 
-    const new_users: Map<number, any> = new Map(data.users.map(user => [user.id, user]));
+    const new_users: Map<number, UserType> = new Map(data.users.map(user => [user.id, user]));
     setUsers(new_users);
 
-    const new_dests: Map<number, any> = new Map(data.dests.map(dest => [dest.id, dest]));
+    const new_dests: Map<number, DestType> = new Map(data.dests.map(dest => [dest.id, dest]));
     setDests(new_dests);
 
     const new_user_dated_values = formed_by(data.user_dated_values, 'user_id', 'code', []);
@@ -171,9 +172,9 @@ const ShiftMain: React.FC<Props> = props => {
     let new_shift_user, new_shift_users;
     if(name === 'dest_id')  {
       if(e) {
-        new_shift_user = {...shift_user, dest_id: e.value, dest_name: e.label};
+        new_shift_user = {...shift_user, dest_id: e.value};
       } else {
-        new_shift_user = {...shift_user, dest_id: '', dest_name: ''};
+        new_shift_user = {...shift_user, dest_id: ''};
       }
     } else {
       new_shift_user = {...shift_user, [name]: e.target.value};
@@ -189,24 +190,12 @@ const ShiftMain: React.FC<Props> = props => {
     setShiftUsersDest({...shift_users_dest, [date]: new_shift_users_dest});
   };
 
-  const active_shift_users = (date, user_id) => {
-    const shift_users_user = shift_users[date][user_id];
-    if(shift_users_user) {
-      if(shift_users_user.daily.length > 0)           return shift_users_user.daily;
-      else if(shift_users_user.rest_week.length > 0)  return shift_users_user.rest_week;
-      else if(shift_users_user.custom.length > 0)     return shift_users_user.custom;
-      else if(shift_users_user.holiday.length > 0)    return shift_users_user.holiday;
-      else if(shift_users_user.weekly.length > 0)     return shift_users_user.weekly;
-    }
-  };
-
-  const onDropShiftUser = (date, user, shift_user) => () => {
-    const shift_users_drag_user = active_shift_users(date, user.id);
-    const shift_users_drop_user = active_shift_users(date, shift_user.user_id);
+  const onDropShiftUser = (date: string, user: UserType, shift_user: ShiftUserType) => () => {
+    const shift_users_drag_user = active_shift_users(date, user.id, shift_users);
+    const shift_users_drop_user = active_shift_users(date, shift_user.user_id, shift_users);
     if(shift_users_drag_user && shift_users_drop_user) {
-      const dest_name = dests.get(shift_user.dest_id).name;
-      let new_shift_drag_user = {...shift_users_drag_user[0], dest_id: shift_user.dest_id, dest_name: dest_name, roster_type: 'at_work', _modify: true};
-      let new_shift_drop_user = {...shift_users_drop_user[0], dest_id: null, dest_name: '', _modify: true};
+      let new_shift_drag_user = {...shift_users_drag_user[0], dest_id: shift_user.dest_id, roster_type: 'at_work', _modify: true};
+      let new_shift_drop_user = {...shift_users_drop_user[0], dest_id: null, _modify: true};
 
       let new_shift_users = {...shift_users[date]};
       new_shift_users[user.id].daily = [new_shift_drag_user];

@@ -1,6 +1,7 @@
 import React from 'react';
 import clsx from 'clsx';
-import { user_name_with_code, name_with_code } from '../../tools/name_with_code';
+import { active_shift_users_user, UserType, DestType, ShiftUserType, ShiftUsersUserType, ShiftUsersDateUserType } from './tools';
+import { user_name_with_code } from '../../tools/name_with_code';
 import './styles.css';
 
 
@@ -30,8 +31,8 @@ const styles = {
 
 
 interface ShiftUserProps {
-  shift_user: any;
-  dests: Map<number, any>;
+  shift_user: ShiftUserType;
+  dests: Map<number, DestType>;
 }
 
 const ShiftUser: React.FC<ShiftUserProps> = ({shift_user, dests}) => {
@@ -50,21 +51,14 @@ const ShiftUser: React.FC<ShiftUserProps> = ({shift_user, dests}) => {
 
 interface UserFrameProps {
   date: string;
-  user: any;
-  shift_users_user?: {weekly: any, holiday: any, custom: any, rest_week: any, daily: any};
-  dests: Map<number, any>;
+  user: UserType;
+  shift_users_user?: ShiftUsersUserType;
+  dests: Map<number, DestType>;
   onFormSelected: (date: string, user_id: number) => () => void;
 }
 
 const UserFrame: React.FC<UserFrameProps> = ({date, user, shift_users_user, dests, onFormSelected}) => {
-  let shift_users = null;
-  if(shift_users_user) {
-    if(shift_users_user.daily.length > 0)           shift_users = shift_users_user.daily;
-    else if(shift_users_user.rest_week.length > 0)  shift_users = shift_users_user.rest_week;
-    else if(shift_users_user.custom.length > 0)     shift_users = shift_users_user.custom;
-    else if(shift_users_user.holiday.length > 0)    shift_users = shift_users_user.holiday;
-    else if(shift_users_user.weekly.length > 0)     shift_users = shift_users_user.weekly;
-  }
+  let shift_users = active_shift_users_user(shift_users_user);
   if(!shift_users) return <td></td>;
 
   const onSave = () => {
@@ -83,9 +77,9 @@ const UserFrame: React.FC<UserFrameProps> = ({date, user, shift_users_user, dest
 
 interface Props {
   dates: string[];
-  shift_users: {};
-  users: Map<number, any>;
-  dests: Map<number, any>;
+  shift_users: ShiftUsersDateUserType;
+  users: Map<number, UserType>;
+  dests: Map<number, DestType>;
   user_dated_values: {};
   dest_dated_values: {};
   area_ids: number[];

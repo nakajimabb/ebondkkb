@@ -1,7 +1,18 @@
 import React, {useState, useEffect} from 'react';
 import { DndProvider, useDrag, useDrop } from 'react-dnd'
+import {
+  RegionType,
+  UserType,
+  DestType,
+  ShiftUserType,
+  ShiftUsersDestType,
+  ShiftUsersUserType,
+  active_shift_users_user,
+  shift_users_user_text,
+} from './tools';
 import Backend from 'react-dnd-html5-backend'
 import clsx from "clsx";
+import { str } from '../../tools/str';
 import { user_name_with_code, name_with_code, full_name } from '../../tools/name_with_code';
 import Select from '../Select';
 import './styles.css';
@@ -18,9 +29,10 @@ const styles = {
   },
 };
 
+
 interface DestFrameUserProps {
-  user: any;
-  shift_user: any;
+  user: UserType;
+  shift_user: ShiftUserType;
   hidden: boolean;
 }
 
@@ -35,7 +47,7 @@ const DestFrameUser: React.FC<DestFrameUserProps> = ({user, shift_user, hidden})
     }),
   });
   const isActive = canDrop && isOver;
-  let style: any = {borderColor: '#dee2e6', borderWidth: 1, boxSizing: 'border-box'};
+  let style = {borderColor: '#dee2e6', borderWidth: 1};
   if (isActive) {
     style.borderColor = 'magenta';
     style.borderWidth = 3;
@@ -53,9 +65,9 @@ const DestFrameUser: React.FC<DestFrameUserProps> = ({user, shift_user, hidden})
 
 interface DestFrameProps {
   date: string;
-  dest: any;
-  users: Map<number, any>;
-  shift_users_dest: any;
+  dest: DestType;
+  users: Map<number, UserType>;
+  shift_users_dest: ShiftUserType[];
   hidden: boolean;
 }
 
@@ -77,55 +89,19 @@ const DestFrame: React.FC<DestFrameProps> = ({date, dest, users, shift_users_des
 
 interface UnassignedProps {
   date: string;
-  user: any;
-  shift_users: any;
-  dests: Map<number, any>;
-  onDropped: (date: string, user: any, shift_user: any) => () => void;
+  user: UserType;
+  shift_users_user: ShiftUsersUserType;
+  dests: Map<number, DestType>;
+  onDropped: (date: string, user: UserType, shift_user: ShiftUserType) => () => void;
   hidden: boolean;
 }
 
-const Unassigned: React.FC<UnassignedProps> = ({date, user, shift_users, dests, onDropped, hidden}) => {
-
-  const shift_users_user_text = (shift_users_user: any, dests: Map<number, any>): [string, string] => {
-    if(!shift_users_user) return [null, ''];
-
-    let valid_proc_type = null;
-    const proc_types = ['daily', 'rest_week', 'custom', 'holiday', 'weekly'];
-    let texts = {am: '', pm: '', full: '', night: ''};
-    for(const proc_type of proc_types) {
-      const shift_users_user2 = shift_users_user[proc_type];
-      if(!shift_users_user2 || shift_users_user2.length === 0) continue;
-      for(const shift_user of shift_users_user2) {
-        if(shift_user.roster_type == 'at_work') {
-          if (shift_user.dest_id) {
-            const dest = dests.get(shift_user.dest_id);
-            texts[shift_user.period_type] = dest ? dest.name : '?';
-          } else {
-            texts[shift_user.period_type] = '○';
-          }
-        } else if(shift_user.roster_type == 'legal_holiday') {
-          texts[shift_user.period_type] = '公休';
-        } else if(shift_user.roster_type == 'paid_holiday') {
-          texts[shift_user.period_type] = '有休';
-        }
-      }
-      valid_proc_type = proc_type;
-      break;
-    }
-    if(texts.full) {
-      delete texts.am;
-      delete texts.pm;
-    } else {
-      delete texts.full;
-    }
-    delete texts.night;
-    return [valid_proc_type, Object.values(texts).join('/')];
-  };
+const Unassigned: React.FC<UnassignedProps> = ({date, user, shift_users_user, dests, onDropped, hidden}) => {
 
   const [{ isDragging }, drag] = useDrag({
     item: { name: user, type: 'unassigned' },
     canDrag: !hidden,
-    end: (item: {name: string}, monitor) => {
+    end: (item: {name: UserType}, monitor) => {
       const dropResult = monitor.getDropResult();
       if (item && dropResult) {
         onDropped(date, item.name, dropResult.name)();
@@ -136,7 +112,12 @@ const Unassigned: React.FC<UnassignedProps> = ({date, user, shift_users, dests, 
     }),
   });
 
-  const [proc_type, text] = shift_users_user_text(shift_users, dests);
+  const shift_users = active_shift_users_user(shift_users_user);
+  if(!shift_users) return null;
+
+  const text  = shift_users_user_text(shift_users, dests, false);
+  const proc_type = shift_users[0].proc_type;
+
   const opacity = isDragging ? 0.4 : 1;
 
   return (
@@ -154,13 +135,13 @@ const Unassigned: React.FC<UnassignedProps> = ({date, user, shift_users, dests, 
 
 interface UnassignedUsersProps {
   date: string;
-  shift_users: {};
-  users: Map<number, any>;
-  dests: Map<number, any>;
+  shift_users: ShiftUsersUserType;
+  users: Map<number, UserType>;
+  dests: Map<number, DestType>;
   user_dated_values: {};
-  regions: any;
+  regions: RegionType[];
   onFormSelected: (date: string, user_id: number) => () => void;
-  onDropped: (date: string, user: any, shift_user: any) => () => void;
+  onDropped: (date: string, user: UserType, shift_user: ShiftUserType) => () => void;
 }
 
 const UnassignedUsers: React.FC<UnassignedUsersProps> = ({date,
@@ -173,7 +154,7 @@ const UnassignedUsers: React.FC<UnassignedUsersProps> = ({date,
                                                            onDropped
                                                          }) => {
   const [area_ids, setAreaIds] = useState([]);
-  const region_options = regions.map(region => ({label: region.name, value: region.area_ids}));
+  const region_options = regions.map(region => ({label: region.name, value: str(region.area_ids)}));
 
   useEffect(() => {
     if(regions.length > 0) {
@@ -207,7 +188,7 @@ const UnassignedUsers: React.FC<UnassignedUsersProps> = ({date,
             const class_name: string = hidden ? 'd-none' : '';
             return (
               <div key={index} className={class_name} onDoubleClick={onFormSelected(date, user.id)}>
-                <Unassigned date={date} user={user} shift_users={shift_users[user.id]} dests={dests} onDropped={onDropped} hidden={hidden} />
+                <Unassigned date={date} user={user} shift_users_user={shift_users[user.id]} dests={dests} onDropped={onDropped} hidden={hidden} />
               </div>
             );
             })
@@ -219,16 +200,16 @@ const UnassignedUsers: React.FC<UnassignedUsersProps> = ({date,
 
 interface Props {
   date: string;
-  shift_users: {};
-  shift_users_dest: {};
-  users: Map<number, any>;
-  dests: Map<number, any>;
+  shift_users: ShiftUsersUserType;
+  shift_users_dest: ShiftUsersDestType;
+  users: Map<number, UserType>;
+  dests: Map<number, DestType>;
   user_dated_values: {};
   dest_dated_values: {};
   area_ids: number[];
-  regions: any;
+  regions: RegionType[];
   onFormSelected: (date: string, user_id: number) => () => void;
-  onDropped: (date: string, user: any, shift_user: any) => () => void;
+  onDropped: (date: string, user: UserType, shift_user: ShiftUserType) => () => void;
 }
 
 const ShiftShopDaily: React.FC<Props> = (props) => {

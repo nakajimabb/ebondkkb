@@ -1,13 +1,14 @@
 import React from 'react';
+import { UserType, DestType, ShiftUserType, ShiftUsersDestType, ShiftUsersDateDestType } from './tools';
 import { full_name, name_with_code } from '../../tools/name_with_code';
 import './styles.css';
 
 
 interface DestFrameProps {
   date: string;
-  dest: any;
-  users: Map<number, any>;
-  shift_users_dest: any[];
+  dest: DestType;
+  users: Map<number, UserType>;
+  shift_users_dest: ShiftUserType[];
 }
 
 const FrameDate: React.FC<DestFrameProps> = ({date, dest, users, shift_users_dest}) => {
@@ -26,9 +27,9 @@ const FrameDate: React.FC<DestFrameProps> = ({date, dest, users, shift_users_des
 
 interface Props {
   dates: string[];
-  shift_users_dest: {};
-  users: Map<number, any>;
-  dests: Map<number, any>;
+  shift_users_dest: ShiftUsersDateDestType;
+  users: Map<number, UserType>;
+  dests: Map<number, DestType>;
   user_dated_values: {};
   dest_dated_values: {};
   area_ids: number[];

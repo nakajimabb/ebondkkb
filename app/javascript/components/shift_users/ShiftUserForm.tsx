@@ -1,4 +1,5 @@
 import React, {FormEvent} from 'react';
+import { UserType, DestType, ShiftUserType, ShiftUsersUserType } from './tools';
 import Select from '../Select';
 import SelectDest from '../SelectDest';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '../Dialog/index';
@@ -7,11 +8,12 @@ import { user_name_with_code } from '../../tools/name_with_code';
 
 interface ShiftUserInputProps {
   date: string;
-  shift_user: any;
-  onChange: (date: string, name: string, shift_user: any) => (e: FormEvent) => void,
+  shift_user: ShiftUserType;
+  dests: Map<number, DestType>;
+  onChange: (date: string, name: string, shift_user: ShiftUserType) => (e: FormEvent) => void,
 }
 
-const ShiftUserInput: React.FC<ShiftUserInputProps> = ({date, shift_user, onChange}) => {
+const ShiftUserInput: React.FC<ShiftUserInputProps> = ({date, shift_user, dests, onChange}) => {
   const period_type_options = [ {label: '全', value: 'full'},
                                 {label: '前', value: 'am'},
                                 {label: '後', value: 'pm'},
@@ -19,6 +21,8 @@ const ShiftUserInput: React.FC<ShiftUserInputProps> = ({date, shift_user, onChan
   const roster_type_options = [ {label: '○', value: 'at_work'},
                                 {label: '☓', value: 'legal_holiday'},
                                 {label: '有', value: 'paid_holiday'}];
+  const dest_name = dests.get(shift_user.dest_id).name;
+
   return (
     <tr>
       <td className="p-0">
@@ -38,7 +42,7 @@ const ShiftUserInput: React.FC<ShiftUserInputProps> = ({date, shift_user, onChan
       <td className="p-0">
         <SelectDest
           isClearable={true}
-          value={{ label: shift_user.dest_name, value: shift_user.dest_id }}
+          value={{ label: dest_name, value: shift_user.dest_id }}
           onChange={onChange(date, 'dest_id', shift_user)}
         />
       </td>
@@ -49,11 +53,12 @@ const ShiftUserInput: React.FC<ShiftUserInputProps> = ({date, shift_user, onChan
 interface ShiftUserFieldsProps {
   date: string;
   title: string;
-  shift_users: any;
-  onChange: (date: string, name: string, shift_user: any) => (e: FormEvent) => void,
+  shift_users: ShiftUserType[];
+  dests: Map<number, DestType>;
+  onChange: (date: string, name: string, shift_user: ShiftUserType) => (e: FormEvent) => void,
 }
 
-const ShiftUserFields: React.FC<ShiftUserFieldsProps> = ({date, title, shift_users, onChange}) => {
+const ShiftUserFields: React.FC<ShiftUserFieldsProps> = ({date, title, shift_users, dests, onChange}) => {
   return (
     <div className="card">
       <div className="card-header px-2 py-1">
@@ -70,7 +75,7 @@ const ShiftUserFields: React.FC<ShiftUserFieldsProps> = ({date, title, shift_use
       <div className="card-body p-0">
         <table className="table">
           <tbody>
-            { shift_users.map(shift_user => <ShiftUserInput shift_user={shift_user} date={date} onChange={onChange} />) }
+            { shift_users.map(shift_user => <ShiftUserInput shift_user={shift_user} date={date} dests={dests} onChange={onChange} />) }
           </tbody>
         </table>
       </div>
@@ -81,10 +86,10 @@ const ShiftUserFields: React.FC<ShiftUserFieldsProps> = ({date, title, shift_use
 
 interface Props {
   date: string;
-  user: any;
-  shift_users_user?: {weekly: any, holiday: any, custom: any, rest_week: any, daily: any};
-  dests: Map<number, any>;
-  onChange: (date: string, name: string, shift_user: any) => (e: FormEvent) => void,
+  user: UserType;
+  shift_users_user?: ShiftUsersUserType;
+  dests: Map<number, DestType>;
+  onChange: (date: string, name: string, shift_user: ShiftUserType) => (e: FormEvent) => void,
   onClose: (e: FormEvent) => void;
 }
 
@@ -99,10 +104,10 @@ const ShiftUserForm: React.FC<Props> = ({date, user, shift_users_user, dests, on
     <Dialog>
       <DialogTitle onClose={onClose}>{ title }</DialogTitle>
       <DialogContent>
-        <ShiftUserFields title="基本設計" shift_users={shift_users_user.weekly} date={date} onChange={onChange} />
-        <ShiftUserFields title="カスタム" shift_users={shift_users_user.custom} date={date} onChange={onChange} />
-        <ShiftUserFields title="祝日処理" shift_users={shift_users_user.rest_week} date={date} onChange={onChange} />
-        <ShiftUserFields title="日別" shift_users={shift_users_user.daily} date={date} onChange={onChange} />
+        <ShiftUserFields title="基本設計" shift_users={shift_users_user.weekly} date={date} dests={dests} onChange={onChange} />
+        <ShiftUserFields title="カスタム" shift_users={shift_users_user.custom} date={date} dests={dests} onChange={onChange} />
+        <ShiftUserFields title="祝日処理" shift_users={shift_users_user.rest_week} date={date} dests={dests} onChange={onChange} />
+        <ShiftUserFields title="日別" shift_users={shift_users_user.daily} date={date} dests={dests} onChange={onChange} />
       </DialogContent>
       <DialogActions>
         <button type="button" className="btn btn-default" data-dismiss="modal" onClick={onClose}>ｷｬﾝｾﾙ</button>
