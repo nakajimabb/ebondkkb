@@ -93,7 +93,7 @@ export const shift_users_user_text = (shift_users: ShiftUserType[],
     if (shift_user.roster_type == 'at_work') {
       if (shift_user.dest_id) {
         const dest = dests.get(shift_user.dest_id);
-        texts[shift_user.period_type] = dest ? dest.name : '?';
+        texts[shift_user.period_type] = dest ? dest.name : `?:${shift_user.dest_id}`;
       } else {
         texts[shift_user.period_type] = '○';
       }

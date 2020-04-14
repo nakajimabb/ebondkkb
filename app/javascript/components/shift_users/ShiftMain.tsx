@@ -194,8 +194,19 @@ const ShiftMain: React.FC<Props> = props => {
     const shift_users_drag_user = active_shift_users(date, user.id, shift_users);
     const shift_users_drop_user = active_shift_users(date, shift_user.user_id, shift_users);
     if(shift_users_drag_user && shift_users_drop_user) {
-      let new_shift_drag_user = {...shift_users_drag_user[0], dest_id: shift_user.dest_id, roster_type: 'at_work', _modify: true};
-      let new_shift_drop_user = {...shift_users_drop_user[0], dest_id: null, _modify: true};
+      let new_shift_drag_user = {
+        ...shift_users_drag_user[0],
+        dest_id: shift_user.dest_id,
+        proc_type: 'daily',
+        roster_type: 'at_work',
+        _modify: true
+      };
+      let new_shift_drop_user = {
+        ...shift_users_drop_user[0],
+        dest_id: null,
+        proc_type: 'daily',
+        _modify: true
+      };
 
       let new_shift_users = {...shift_users[date]};
       new_shift_users[user.id].daily = [new_shift_drag_user];

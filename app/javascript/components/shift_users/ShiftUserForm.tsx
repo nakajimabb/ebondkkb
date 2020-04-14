@@ -21,7 +21,8 @@ const ShiftUserInput: React.FC<ShiftUserInputProps> = ({date, shift_user, dests,
   const roster_type_options = [ {label: '○', value: 'at_work'},
                                 {label: '☓', value: 'legal_holiday'},
                                 {label: '有', value: 'paid_holiday'}];
-  const dest_name = dests.get(shift_user.dest_id).name;
+  const dest = dests.get(shift_user.dest_id);
+  const dest_name = dest ? dest.name : '';
 
   return (
     <tr>
@@ -75,7 +76,14 @@ const ShiftUserFields: React.FC<ShiftUserFieldsProps> = ({date, title, shift_use
       <div className="card-body p-0">
         <table className="table">
           <tbody>
-            { shift_users.map(shift_user => <ShiftUserInput shift_user={shift_user} date={date} dests={dests} onChange={onChange} />) }
+            { shift_users.map((shift_user, index) => (
+              <ShiftUserInput key={index}
+                              shift_user={shift_user}
+                              date={date}
+                              dests={dests}
+                              onChange={onChange} />
+              ))
+            }
           </tbody>
         </table>
       </div>
