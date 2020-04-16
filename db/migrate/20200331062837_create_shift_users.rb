@@ -1,13 +1,13 @@
 class CreateShiftUsers < ActiveRecord::Migration[6.0]
   def change
     create_table :shift_users do |t|
-      t.date :dated_on
+      t.date :dated_on, null: false
       t.references :user, null: false, foreign_key: true
       t.references :dest, foreign_key: true
-      t.integer :period_type
-      t.integer :proc_type
-      t.integer :roster_type
-      t.integer :frame_type
+      t.integer :period_type, null: false
+      t.integer :proc_type, null: false
+      t.integer :roster_type, null: false
+      t.integer :frame_type, null: false, default: 1
 
       t.timestamps
     end

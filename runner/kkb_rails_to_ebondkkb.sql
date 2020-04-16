@@ -8,19 +8,19 @@ insert into ebondkkb_development.groups(id, code, name, hidden, created_at, upda
 insert into ebondkkb_development.group_users(id, group_id, user_id, created_at, updated_at) select id, group_id, user_id, created_at, updated_at from kkb_rails.group_users group by group_id, user_id;
 
 update ebondkkb_development.users u1 join kkb_rails.users u2 on u1.id = u2.id set u1.parent_id = u2.parent_id;
-update ebondkkb_development.users u1 join kkb_rails.users u2 on u1.id = u2.id set u1.section = u2.section where u2.section < 100;
+update ebondkkb_development.users u1 join kkb_rails.users u2 on u1.id = u2.id set u1.section = ifnull(u2.section, 1) where u2.section < 100;
 update ebondkkb_development.users u1 join kkb_rails.users u2 on u1.id = u2.id set u1.shop = true where u2.section = 100;
 update ebondkkb_development.users u1 join kkb_rails.users u2 on u1.id = u2.id set u1.prefecture = case when u2.address_prefecture = '' then null else cast(u2.address_prefecture as signed) end;
 
 
 -- companies
-insert into ebondkkb_development.companies(id, code, name, hidden, section, created_at, updated_at) select id, code, name, hidden, section, created_at, updated_at from kkb_rails.companies;
+insert into ebondkkb_development.companies(id, code, name, hidden, section, created_at, updated_at) select id, code, name, hidden, ifnull(section, 1), created_at, updated_at from kkb_rails.companies;
 insert into ebondkkb_development.companies(code, name, section, created_at, updated_at) values('unknown', 'unknown', 1, now(), now());
 
 -- dests
+update kkb_rails.destinations set code = concat(code, '-', id) where code in ('S001', 'S002', 'K002', '1', 'h2011', 'h2029', 'h2099', 'h2238');
 insert into ebondkkb_development.dests(id, company_id, code, name, kana, opened_on, closed_on, started_on, finished_on, shift_number1, shift_number2, zip, city, street, building, created_at, updated_at) select dest.id, ifnull(company_id, 1), dest.code, ifnull(dest.name, ''), ifnull(kana, ''), opening_date, closing_date, start_day_count, finish_day_count, ifnull(shift_number1, ''), ifnull(shift_number2, ''), ifnull(zip, ''), ifnull(address1, ''), ifnull(address2, ''), ifnull(address3, ''), dest.created_at, dest.updated_at from kkb_rails.destinations dest left outer join kkb_rails.departments dep on dest.id = dep.destination_id;
 -- modify codes(S001, S002, K002, 1, h2029, h2099, h2238)
--- update kkb_rails.destinations set code = concat('1-', id) where code='1';
 
 update ebondkkb_development.dests d1 join kkb_rails.departments d2 on d1.id = d2.id set d1.provisional = true where d2.data_type = 13;
 update ebondkkb_development.dests d1 join kkb_rails.departments d2 on d1.id = d2.id set d1.prefecture = case when d2.prefecture = '' then null else cast(d2.prefecture as signed) end;

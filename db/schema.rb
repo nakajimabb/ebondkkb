@@ -107,13 +107,13 @@ ActiveRecord::Schema.define(version: 2020_03_31_062837) do
   end
 
   create_table "shift_users", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4", force: :cascade do |t|
-    t.date "dated_on"
+    t.date "dated_on", null: false
     t.bigint "user_id", null: false
     t.bigint "dest_id"
-    t.integer "period_type"
-    t.integer "proc_type"
-    t.integer "roster_type"
-    t.integer "frame_type"
+    t.integer "period_type", null: false
+    t.integer "proc_type", null: false
+    t.integer "roster_type", null: false
+    t.integer "frame_type", default: 1, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
     t.index ["dated_on", "user_id", "period_type", "proc_type"], name: "index_shift_user_date_user_period_proc", unique: true
