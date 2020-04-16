@@ -1,19 +1,22 @@
-import React, {FormEvent} from 'react';
-import { UserType, DestType, ShiftUserType, ShiftUsersUserType } from './tools';
+import React, { useState, FormEvent } from 'react';
+import { UserType, DestType, ShiftUserType, ShiftUsersUserType, vacantPeriodType, sortByPeriodType, collect_shift_users } from './tools';
 import Select from '../Select';
 import SelectDest from '../SelectDest';
+import Alert from '../Alert';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '../Dialog/index';
 import { user_name_with_code } from '../../tools/name_with_code';
+import env from '../../environment';
+import axios from 'axios';
 
 
 interface ShiftUserInputProps {
-  date: string;
+  index: number;
   shift_user: ShiftUserType;
   dests: Map<number, DestType>;
-  onChange: (date: string, name: string, shift_user: ShiftUserType) => (e: FormEvent) => void,
+  onChange: (index: number, shift_user: ShiftUserType, name: string) => (e: FormEvent) => void,
 }
 
-const ShiftUserInput: React.FC<ShiftUserInputProps> = ({date, shift_user, dests, onChange}) => {
+const ShiftUserInput: React.FC<ShiftUserInputProps> = ({index, shift_user, dests, onChange}) => {
   const period_type_options = [ {label: '全', value: 'full'},
                                 {label: '前', value: 'am'},
                                 {label: '後', value: 'pm'},
@@ -29,14 +32,14 @@ const ShiftUserInput: React.FC<ShiftUserInputProps> = ({date, shift_user, dests,
       <td className="p-0">
         <Select options={period_type_options}
                 value={shift_user.period_type}
-                onChange={onChange(date, 'period_type', shift_user)}
+                onChange={onChange(index, shift_user, 'period_type')}
                 className="form-control"
         />
       </td>
       <td className="p-0">
         <Select options={roster_type_options}
                 value={shift_user.roster_type}
-                onChange={onChange(date, 'roster_type', shift_user)}
+                onChange={onChange(index, shift_user, 'roster_type')}
                 className="form-control"
         />
       </td>
@@ -44,7 +47,7 @@ const ShiftUserInput: React.FC<ShiftUserInputProps> = ({date, shift_user, dests,
         <SelectDest
           isClearable={true}
           value={{ label: dest_name, value: shift_user.dest_id }}
-          onChange={onChange(date, 'dest_id', shift_user)}
+          onChange={onChange(index, shift_user, 'dest_id')}
         />
       </td>
     </tr>
@@ -52,34 +55,35 @@ const ShiftUserInput: React.FC<ShiftUserInputProps> = ({date, shift_user, dests,
 };
 
 interface ShiftUserFieldsProps {
-  date: string;
   title: string;
   shift_users: ShiftUserType[];
   dests: Map<number, DestType>;
-  onChange: (date: string, name: string, shift_user: ShiftUserType) => (e: FormEvent) => void,
+  onNew?: (e: FormEvent) => void,
+  onChange: (index: number, shift_user: ShiftUserType, name: string) => (e: FormEvent) => void,
 }
 
-const ShiftUserFields: React.FC<ShiftUserFieldsProps> = ({date, title, shift_users, dests, onChange}) => {
+const ShiftUserFields: React.FC<ShiftUserFieldsProps> = ({title, shift_users, dests, onNew, onChange}) => {
   return (
     <div className="card">
       <div className="card-header px-2 py-1">
         { title }
-        <div className="card-tools">
-          <button type="button" className="btn btn-tool" data-card-widget="collapse" data-toggle="tooltip"
-                  title="Collapse">
-            <i className="fas fa-minus"></i></button>
-          <button type="button" className="btn btn-tool" data-card-widget="remove" data-toggle="tooltip"
-                  title="Remove">
-            <i className="fas fa-times"></i></button>
-        </div>
+        {
+          onNew && (
+            <div className="card-tools">
+              <button type="button" className="btn btn-xs btn-outline-primary mr-2" data-toggle="tooltip" onClick={onNew}>
+                追加
+              </button>
+            </div>
+          )
+        }
       </div>
       <div className="card-body p-0">
         <table className="table">
           <tbody>
             { shift_users.map((shift_user, index) => (
               <ShiftUserInput key={index}
+                              index={index}
                               shift_user={shift_user}
-                              date={date}
                               dests={dests}
                               onChange={onChange} />
               ))
@@ -97,25 +101,73 @@ interface Props {
   user: UserType;
   shift_users_user?: ShiftUsersUserType;
   dests: Map<number, DestType>;
-  onChange: (date: string, name: string, shift_user: ShiftUserType) => (e: FormEvent) => void,
-  onClose: (e: FormEvent) => void;
+  onClose: (e?: FormEvent) => void;
+  mergeShiftUsers: (date: string, shift_users: any[]) => boolean;
 }
 
-const ShiftUserForm: React.FC<Props> = ({date, user, shift_users_user, dests, onChange, onClose}) => {
+const ShiftUserForm: React.FC<Props> = ({date, user, shift_users_user, dests, onClose, mergeShiftUsers}) => {
   const title = `${date} ${user_name_with_code(user)}`;
+  const [shift_users, setShiftUsers] = useState({...shift_users_user});
+  const [errors, setErrors] = useState([]);
+
+  const onChange = (index, shift_user, name) => (e) => {
+    let new_shift_user;
+    if(name === 'dest_id') {
+      if(e) {
+        new_shift_user = {...shift_user, dest_id: e.value};
+      } else {
+        new_shift_user = {...shift_user, dest_id: ''};
+      }
+    } else {
+      new_shift_user = {...shift_user, [name]: e.target.value};
+    }
+    new_shift_user._modify = true;
+
+    let shift_users_array = shift_users[shift_user.proc_type].map((s, i) => (i === index) ? new_shift_user : s);
+    const new_shift_users = {...shift_users, [shift_user.proc_type]: shift_users_array };
+    setShiftUsers(new_shift_users);
+  };
+
+  const onNew = (proc_type) => (e) => {
+    const max_size = (proc_type === 'daily') ? 3 : 2;
+    if(shift_users[proc_type].length >= max_size) return;
+
+    const period_type = vacantPeriodType(shift_users[proc_type], proc_type === 'daily');
+    if(!period_type) return;
+
+    const new_shift_user = {dated_on: date, period_type, proc_type, user_id: user.id, roster_type: 'at_work', _modify: true};
+    const new_shift_users = {...shift_users, [proc_type]: sortByPeriodType([...shift_users[proc_type], new_shift_user])};
+    setShiftUsers(new_shift_users);
+  };
 
   const onSave = () => {
-
+    const url = `${env.API_ORIGIN}/api/shift_users/save`;
+    const new_shift_users = collect_shift_users(shift_users);
+    axios.post(url, {shift_users: new_shift_users}).then(({data}) => {
+      console.log({data});
+      mergeShiftUsers(date, data.shift_users);
+      onClose();
+    }).catch(error => {
+      setErrors(error.response.data.errors)
+    })
   };
 
   return (
     <Dialog>
       <DialogTitle onClose={onClose}>{ title }</DialogTitle>
       <DialogContent>
-        <ShiftUserFields title="基本設計" shift_users={shift_users_user.weekly} date={date} dests={dests} onChange={onChange} />
-        <ShiftUserFields title="カスタム" shift_users={shift_users_user.custom} date={date} dests={dests} onChange={onChange} />
-        <ShiftUserFields title="祝日処理" shift_users={shift_users_user.rest_week} date={date} dests={dests} onChange={onChange} />
-        <ShiftUserFields title="日別" shift_users={shift_users_user.daily} date={date} dests={dests} onChange={onChange} />
+        <Alert open={errors.length > 0} severity={"danger"} >
+          { errors.map(error => (
+            <>
+              { error }
+              <br />
+            </>
+          )) }
+        </Alert>
+        <ShiftUserFields title="基本設計" shift_users={shift_users.weekly} dests={dests} onNew={onNew('weekly')} onChange={onChange} />
+        <ShiftUserFields title="カスタム" shift_users={shift_users.custom} dests={dests} onChange={onChange} />
+        <ShiftUserFields title="祝日処理" shift_users={shift_users.rest_week} dests={dests} onChange={onChange} />
+        <ShiftUserFields title="日別" shift_users={shift_users.daily} dests={dests} onNew={onNew('daily')} onChange={onChange} />
       </DialogContent>
       <DialogActions>
         <button type="button" className="btn btn-default" data-dismiss="modal" onClick={onClose}>ｷｬﾝｾﾙ</button>

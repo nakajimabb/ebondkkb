@@ -115,3 +115,34 @@ export const shift_users_user_text = (shift_users: ShiftUserType[],
   }
   return Object.values(texts).join('/');
 };
+
+export const vacantPeriodType = (shift_users: ShiftUserType[], night): string | null => {
+  const period_types = shift_users.map(s => s.period_type);
+  if(period_types.includes('full')) {
+    if(night && !period_types.includes('night')) return 'night';
+  } else {
+    if(!period_types.includes('am') && !period_types.includes('pm')) return 'full';
+    if(!period_types.includes('am')) return 'am';
+    if(!period_types.includes('pm')) return 'pm';
+    if(night && !period_types.includes('night')) return 'night';
+  }
+};
+
+export const sortByPeriodType = (shift_users: ShiftUserType[]): ShiftUserType[] => {
+  const orders = {full: 0, am: 1, pm: 2, night: 3};
+  return shift_users.sort((s1, s2) => {
+    const p1 = orders[s1.period_type];
+    const p2 = orders[s2.period_type];
+    if(p1 < p2) return -1;
+    else if(p2 > p1) return 1;
+    return 0;
+  });
+};
+
+export const collect_shift_users = (shift_users_user: ShiftUsersUserType): ShiftUserType[] => {
+  let new_shift_users = [];
+  Object.keys(shift_users_user).forEach(proc_type => {
+    new_shift_users = new_shift_users.concat(shift_users_user[proc_type]);
+  });
+  return new_shift_users;
+};

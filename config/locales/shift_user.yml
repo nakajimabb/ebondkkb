@@ -1,0 +1,36 @@
+ja:
+  activerecord:
+    attributes:
+      shift_user:
+        dated_on: "日付"
+        user_id: "社員"
+        dest_id: "行き先"
+        roster_type: "○☓休"
+        frame_type: "枠種別"
+        period_type: "期間"
+        proc_type: "種別"
+  enum:
+    shift_user:
+      roster_type:
+        at_work: "出勤"
+        legal_holiday: "公休"
+        paid_holiday: "有休"
+      period_type:
+        full: "終日"
+        am: "午前"
+        pm: "午後"
+        night: "夜間"
+      frame_type:
+        frame_normal: ''
+        frame_k: 'K'
+        frame_p: 'P'
+        frame_x: 'X'
+        frame_f: "溢"
+        frame_c: '溢(ｶ)'
+      proc_type:
+        weekly: '基本設計'
+        holiday: '基本設計(祝)'
+        custom: 'カスタム'
+        rest_week: '祝日処理'
+        daily: '日別'
+        waiting: '申請中'

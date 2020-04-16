@@ -12,6 +12,7 @@ Rails.application.routes.draw do
 
   scope :api do
     get '/shift_users/shift_table'
+    post '/shift_users/save', to: 'shift_users#save'
   end
 
   # For details on the DSL available within this file, see https://guides.rubyonrails.org/routing.html

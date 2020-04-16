@@ -6,7 +6,17 @@ import ShiftUserWeek from './ShiftUserWeek';
 import ShiftShopWeek from './ShiftShopWeek';
 import ShiftShopDaily from './ShiftShopDaily';
 import ShiftUserForm from '../shift_users/ShiftUserForm';
-import { active_shift_users, UserType, DestType, ShiftUserType, ShiftUsersUserType, ShiftUsersDestType, ShiftUsersDateDestType, ShiftUsersDateUserType } from './tools';
+import {
+  active_shift_users,
+  UserType,
+  DestType,
+  ShiftUserType,
+  ShiftUsersUserType,
+  ShiftUsersDestType,
+  ShiftUsersDateDestType,
+  ShiftUsersDateUserType,
+  sortByPeriodType
+} from './tools';
 import axios from "axios";
 
 const styles = {
@@ -25,7 +35,7 @@ interface Props {
 }
 
 const ShiftMain: React.FC<Props> = props => {
-  const [params, setParams] = useState({start_date: '2020-03-03', end_date: '2020-03-03', job_type: 'pharmacist', shift_type: 'user_week', shop_region: ''});
+  const [params, setParams] = useState({start_date: '2020-03-03', end_date: '2020-03-03', job_type: 'pharmacist', shift_type: 'user_week'});
   const [users, setUsers] = useState(new Map<number, UserType>());
   const [dests, setDests] = useState(new Map<number, DestType>());
   const [user_dated_values, setUserDatedValues] = useState({});
@@ -168,26 +178,31 @@ const ShiftMain: React.FC<Props> = props => {
     setCurDate(e.target.value);
   };
 
-  const onShiftUserChange = (date, name, shift_user) => (e) => {
-    let new_shift_user, new_shift_users;
-    if(name === 'dest_id')  {
-      if(e) {
-        new_shift_user = {...shift_user, dest_id: e.value};
-      } else {
-        new_shift_user = {...shift_user, dest_id: ''};
+  const mergeShiftUsers = (date: string, modify_shift_users: any[]): boolean => {
+    let new_shift_users = {...shift_users};
+    modify_shift_users.forEach(shift_user => {
+      // TODO: proc_type => weekly, holiday, null
+      if(shift_user.proc_type === 'daily') {
+        if(shift_user.dated_on !== date) return;
+        let new_shift_users_user = [...shift_users[shift_user.dated_on][shift_user.user_id].daily];
+        let replace = false;
+        new_shift_users_user = new_shift_users_user.map(s => {
+          const eq = shift_user.id === s.id;
+          if(eq) replace = true;
+          return eq ? shift_user : s;
+        });
+        if(!replace) {
+          new_shift_users_user.push(shift_user);
+        }
+        new_shift_users[shift_user.dated_on][shift_user.user_id].daily = sortByPeriodType(new_shift_users_user);
       }
-    } else {
-      new_shift_user = {...shift_user, [name]: e.target.value};
-    }
-    new_shift_user._modify = true;
+    });
+    setShiftUsers(new_shift_users);
 
-    new_shift_users = {...shift_users[date]};
-    new_shift_users[shift_user.user_id][shift_user.proc_type] = [new_shift_user];
-
-    setShiftUsers({...shift_users, [date]: new_shift_users});
-
-    const new_shift_users_dest = formed_shift_users_dest_date(new_shift_users);
+    const new_shift_users_dest = formed_shift_users_dest_date(new_shift_users[date]);
     setShiftUsersDest({...shift_users_dest, [date]: new_shift_users_dest});
+
+    return true;
   };
 
   const onDropShiftUser = (date: string, user: UserType, shift_user: ShiftUserType) => () => {
@@ -233,7 +248,6 @@ const ShiftMain: React.FC<Props> = props => {
         <input className="form-control mr-1" type="date" name="start_date" style={styles.w140} value={params.start_date} onChange={onChange} />
         <input className="form-control mr-1" type="date" name="end_date" style={styles.w140} value={params.end_date} onChange={onChange} />
         <Select className="form-control mr-1" style={styles.w100} name="job_type" options={job_type_options} value={params.job_type} onChange={onChange} />
-        <Select className="form-control mr-1" style={styles.w100} name="shop_area_ids" options={region_options} prompt={"-店舗ｴﾘｱ-"} value={area_ids.join(',')} onChange={onChange} />
         <button className="btn btn-sm btn-outline-primary" onClick={loadShiftUser} >読込</button>
       </div>
       <div className="input-group input-group-sm mb-2">
@@ -298,8 +312,8 @@ const ShiftMain: React.FC<Props> = props => {
                          user={users.get(selected.user_id)}
                          shift_users_user={shift_users[selected.date][selected.user_id]}
                          dests={dests}
-                         onChange={onShiftUserChange}
                          onClose={onFormClose}
+                         mergeShiftUsers={mergeShiftUsers}
           />
         )
       }

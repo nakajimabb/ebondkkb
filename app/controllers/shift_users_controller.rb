@@ -22,4 +22,51 @@ class ShiftUsersController < ApplicationController
       @dest_dated_values = DestDatedValue.all
     end
   end
+
+  def save
+    begin
+      destroy_shift_users, modify_shift_users, _ = collect_shift_users
+      ShiftUser.transaction do
+        destroy_shift_users.each{ |s| s.update!(proc_type: nil) }
+        modify_shift_users.each(&:save!)
+      end
+      # TODO: 基本設計データを削除した場合、再ロードが必要
+      render json: {shift_users: destroy_shift_users + modify_shift_users}
+    rescue => e
+      errors = collect_errors(modify_shift_users)
+      errors << e.message if errors.blank?
+      render status: 500, json: {errors: errors}
+    end
+  end
+
+ private
+  def collect_errors(records)
+    errors = []
+    records.each do |record|
+      errors += record.errors.full_messages unless record.valid?
+    end
+    errors
+  end
+
+  def collect_shift_users
+    destroy_shift_users = []
+    modify_shift_users = []
+    shift_users = []
+    shift_users_params.map do |shift_user_param|
+      shift_user = ShiftUser.find_or_initialize_by(id: shift_user_param[:id])
+      shift_user.assign_attributes(shift_user_param.permit(ShiftUser::REGISTRABLE_ATTRIBUTES))
+      if shift_user_param[:_destroy]
+        destroy_shift_users << shift_user
+      elsif shift_user_param[:_modify]
+        modify_shift_users << shift_user
+      else
+        shift_users << shift_user
+      end
+    end
+    [destroy_shift_users, modify_shift_users, shift_users]
+  end
+
+  def shift_users_params
+    params.permit(shift_users: ShiftUser::REGISTRABLE_ATTRIBUTES + [:_modify, :_destroy])[:shift_users]
+  end
 end

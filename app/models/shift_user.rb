@@ -1,12 +1,18 @@
 class ShiftUser < ApplicationRecord
+  REGISTRABLE_ATTRIBUTES = %i(id dated_on user_id dest_id roster_type period_type proc_type frame_type)
+
   belongs_to :user
-  belongs_to :dest
+  belongs_to :dest, optional: true
 
   enum roster_type: {at_work: 1, legal_holiday: 2, paid_holiday: 3}
   enum frame_type: {frame_normal: 1, frame_k: 3, frame_p: 4, frame_x: 5, frame_f: 6, frame_c: 7}
   enum period_type: {full: 0, am: 1, pm: 2, night: 3}
   # weekly: 基本設計, holiday: 基本設計(祝日), custom: カスタム, rest_week: 祝日処理, daily: 日別, waiting: 許可待(日別)
   enum proc_type: {weekly: 1, holiday: 2, custom: 3, rest_week: 4, daily: 5, waiting: 6}
+
+  validates :dated_on, presence: true
+  validates :user_id, presence: true
+  validates :period_type, uniqueness: { scope: [:dated_on, :user_id, :period_type, :proc_type]  }
 
   def dest_name
     dest&.name.to_s
