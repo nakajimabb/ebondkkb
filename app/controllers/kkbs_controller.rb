@@ -3,6 +3,9 @@ class KkbsController < ApplicationController
 
   def index
     base_query = Kkb.eager_load(:users).eager_load(groups: :users)
+    if params[:kkb_category_id].present?
+      base_query = base_query.where(kkb_category_id: params[:kkb_category_id])
+    end
     kkbs = base_query.where(open: true)
     kkbs = kkbs.or(base_query.where(posted_by_id: current_user.id))
     kkbs = kkbs.or(base_query.where(users: {id: current_user.id}))
@@ -27,13 +30,15 @@ class KkbsController < ApplicationController
   # POST /kkbs.json
   def create
     @kkb = Kkb.new(kkb_params)
+    #TODO
+    @kkb.kkb_type = :bbs
+    @kkb.posted_by_id = current_user.id
 
     respond_to do |format|
       if @kkb.save
         format.html { redirect_to kkbs_path, notice: 'Kkb was successfully created.' }
-        format.json { render :show, status: :created, location: @kkb }
+        format.json { head :created }
       else
-        @kkb_users = kkb_users(@kkb, false)
         format.html { render :new }
         format.json { render json: @kkb.errors, status: :unprocessable_entity }
       end
