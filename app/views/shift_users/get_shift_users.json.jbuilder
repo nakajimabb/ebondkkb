@@ -19,15 +19,21 @@ json.shift_users do
     json.array! @shift_users[:daily], partial: "shift_users/shift_user", as: :shift_user
   end
 end
-json.dests do
-  json.array! @dests, "id", "code", "name", "updated_at"
-end
 json.users do
   json.array! @users, "id", "code", "first_name", "last_name", "updated_at"
 end
-json.user_dated_values do
-  json.array! @user_dated_values, "id", "user_id", "dated_on", "code", "value"
+if @dests
+  json.dests do
+    json.array! @dests, "id", "code", "name", "updated_at"
+  end
 end
-json.dest_dated_values do
-  json.array! @dest_dated_values, "id", "dest_id", "dated_on", "code", "value"
+if @user_dated_values
+  json.user_dated_values do
+    json.array! @user_dated_values, "id", "user_id", "dated_on", "code", "value"
+  end
+end
+if @dest_dated_values
+  json.dest_dated_values do
+    json.array! @dest_dated_values, "id", "dest_id", "dated_on", "code", "value"
+  end
 end

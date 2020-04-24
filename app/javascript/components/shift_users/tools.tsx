@@ -146,3 +146,30 @@ export const collect_shift_users = (shift_users_user: ShiftUsersUserType): Shift
   });
   return new_shift_users;
 };
+
+export const setObject = (obj, value, ...keys) => {
+  let current = obj;
+  for(let i = 0; i < keys.length; i++) {
+    const key = keys[i];
+    if( i === keys.length - 1) {
+      current[key] = value;
+    } else {
+      if(!current.hasOwnProperty(key)) {
+        current[key] = {};
+      }
+    }
+    current = current[key];
+  }
+};
+
+export const getTimestamp = (timestamps, date, user_id) => {
+  if(timestamps.hasOwnProperty(date)) {
+    if(timestamps[date].hasOwnProperty(user_id)) {
+      return timestamps[date][user_id];
+    } else {
+      return timestamps[date].timestamp;
+    }
+  } else {
+    return null;
+  }
+};

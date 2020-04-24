@@ -1,6 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
-import { active_shift_users_user, UserType, DestType, ShiftUserType, ShiftUsersUserType, ShiftUsersDateUserType } from './tools';
+import { active_shift_users_user, UserType, DestType, ShiftUserType, ShiftUsersUserType, ShiftUsersDateUserType, getTimestamp } from './tools';
 import { user_name_with_code } from '../../tools/name_with_code';
 import './styles.css';
 
@@ -55,15 +55,12 @@ interface UserFrameProps {
   shift_users_user?: ShiftUsersUserType;
   dests: Map<number, DestType>;
   onFormSelected: (date: string, user_id: number) => () => void;
+  timestamps: {}
 }
 
-const UserFrame: React.FC<UserFrameProps> = ({date, user, shift_users_user, dests, onFormSelected}) => {
+const MuiUserFrame: React.FC<UserFrameProps> = ({date, user, shift_users_user, dests, onFormSelected, timestamps}) => {
   let shift_users = active_shift_users_user(shift_users_user);
   if(!shift_users) return <td></td>;
-
-  const onSave = () => {
-
-  };
 
   return (
     <td style={styles.td} onDoubleClick={onFormSelected(date, user.id)}>
@@ -74,6 +71,16 @@ const UserFrame: React.FC<UserFrameProps> = ({date, user, shift_users_user, dest
   );
 };
 
+const UserFrame = React.memo(MuiUserFrame, ({timestamps: prev_timestamps, date: prev_date, user: prev_user},
+                                                        {timestamps: next_timestamps, date: next_date, user: next_user}) => {
+  if(prev_date !== next_date || prev_user.id !== next_user.id) {
+    return false;
+  } else {
+    const prev_timestamp = getTimestamp(prev_timestamps, prev_date, prev_user.id);
+    const next_timestamp = getTimestamp(next_timestamps, next_date, next_user.id);
+    return prev_timestamp == next_timestamp;
+  }
+});
 
 interface Props {
   dates: string[];
@@ -84,11 +91,11 @@ interface Props {
   dest_dated_values: {};
   area_ids: number[];
   onFormSelected: (date: string, user_id: number) => () => void;
+  timestamps: {}
 }
 
-
 const ShiftUserWeek: React.FC<Props> = (props) => {
-  const {dates, shift_users, users, dests, user_dated_values, dest_dated_values, area_ids, onFormSelected} = props;
+  const {dates, shift_users, users, dests, user_dated_values, dest_dated_values, area_ids, onFormSelected, timestamps} = props;
 
   const visibleUser = (dest: {id: number}, area_ids: number[]): boolean => {
     const dated_value = user_dated_values[dest.id] && user_dated_values[dest.id]['area_id'];
@@ -120,6 +127,7 @@ const ShiftUserWeek: React.FC<Props> = (props) => {
                                dests={dests}
                                shift_users_user={shift_users[date][user.id]}
                                onFormSelected={onFormSelected}
+                               timestamps={timestamps}
                     />
               ))
             }

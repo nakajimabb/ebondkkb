@@ -5,8 +5,6 @@ import SelectDest from '../SelectDest';
 import Alert from '../Alert';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '../Dialog/index';
 import { user_name_with_code } from '../../tools/name_with_code';
-import env from '../../environment';
-import axios from 'axios';
 
 
 interface ShiftUserInputProps {
@@ -102,10 +100,10 @@ interface Props {
   shift_users_user?: ShiftUsersUserType;
   dests: Map<number, DestType>;
   onClose: (e?: FormEvent) => void;
-  mergeShiftUsers: (date: string, shift_users: any[]) => boolean;
+  changeShiftUsersUser: (date: string, user_id: number, new_shift_users: ShiftUserType[]) => void;
 }
 
-const ShiftUserForm: React.FC<Props> = ({date, user, shift_users_user, dests, onClose, mergeShiftUsers}) => {
+const ShiftUserForm: React.FC<Props> = ({date, user, shift_users_user, dests, onClose, changeShiftUsersUser}) => {
   const title = `${date} ${user_name_with_code(user)}`;
   const [shift_users, setShiftUsers] = useState({...shift_users_user});
   const [errors, setErrors] = useState([]);
@@ -140,16 +138,15 @@ const ShiftUserForm: React.FC<Props> = ({date, user, shift_users_user, dests, on
     setShiftUsers(new_shift_users);
   };
 
-  const onSave = () => {
-    const url = `${env.API_ORIGIN}/api/shift_users/save`;
-    const new_shift_users = collect_shift_users(shift_users);
-    axios.post(url, {shift_users: new_shift_users}).then(({data}) => {
-      console.log({data});
-      mergeShiftUsers(date, data.shift_users);
+  const onSave = async () => {
+    try{
+      const new_shift_users = collect_shift_users(shift_users);
+      await changeShiftUsersUser(date, user.id, new_shift_users);
       onClose();
-    }).catch(error => {
-      setErrors(error.response.data.errors)
-    })
+    } catch({response}) {
+      const errors = response?.data?.errors || ['エラーが発生しました。'];
+      setErrors(errors);
+    }
   };
 
   return (

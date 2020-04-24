@@ -15,7 +15,7 @@ import {
   ShiftUsersDestType,
   ShiftUsersDateDestType,
   ShiftUsersDateUserType,
-  sortByPeriodType
+  sortByPeriodType, collect_shift_users
 } from './tools';
 import axios from "axios";
 
@@ -46,6 +46,7 @@ const ShiftMain: React.FC<Props> = props => {
   const [area_ids, setAreaIds] = useState([]);
   const [cur_date, setCurDate] = useState('');
   const [selected, setSelected] = useState({date: null, user_id: null});
+  const [timestamps, setTimestamps] = useState({});
 
   const job_type_options = [{label: '薬剤師', value: 'pharmacist'}, {label: '事務員', value: 'office_worker'}];
   const shift_type_options = [{label: '人別', value: 'user_week'}, {label: '店別', value: 'shop_week'}, {label: '日別', value: 'shop_daily'}];
@@ -155,11 +156,17 @@ const ShiftMain: React.FC<Props> = props => {
     setShiftUsersDest(new_shift_users_dest);
 
     setCurDate(params.start_date);
+
+    let new_timestamps = {};
+    for(const date of dates) {
+      new_timestamps[date] = {timestamp: new Date()};
+    }
+    setTimestamps(new_timestamps);
   };
 
   const loadShiftUser = (e) => {
-    const url = `${env.API_ORIGIN}/api/shift_users/shift_table.json`;
-    axios.get(url, {params}).then(({data}) => {
+    const url = `${env.API_ORIGIN}/api/shift_users/get_shift_users.json`;
+    axios.get(url, {params: {...params, dests: true, user_dated_values: true, dest_dated_values: true}}).then(({data}) => {
       setState(data);
     })
   };
@@ -178,31 +185,19 @@ const ShiftMain: React.FC<Props> = props => {
     setCurDate(e.target.value);
   };
 
-  const mergeShiftUsers = (date: string, modify_shift_users: any[]): boolean => {
-    let new_shift_users = {...shift_users};
-    modify_shift_users.forEach(shift_user => {
-      // TODO: proc_type => weekly, holiday, null
-      if(shift_user.proc_type === 'daily') {
-        if(shift_user.dated_on !== date) return;
-        let new_shift_users_user = [...shift_users[shift_user.dated_on][shift_user.user_id].daily];
-        let replace = false;
-        new_shift_users_user = new_shift_users_user.map(s => {
-          const eq = shift_user.id === s.id;
-          if(eq) replace = true;
-          return eq ? shift_user : s;
-        });
-        if(!replace) {
-          new_shift_users_user.push(shift_user);
-        }
-        new_shift_users[shift_user.dated_on][shift_user.user_id].daily = sortByPeriodType(new_shift_users_user);
-      }
-    });
-    setShiftUsers(new_shift_users);
+  const changeShiftUsersUser = async (date: string, user_id: number, new_shift_users: ShiftUserType[]) => {
+    const post_url = `${env.API_ORIGIN}/api/shift_users/save_shift_users`;
+    const result = await axios.post(post_url, {shift_users: new_shift_users});
+    const get_url = `${env.API_ORIGIN}/api/shift_users/get_shift_users.json`;
+    const {data: {shift_users: result_shift_users}} = await axios.get(get_url, {params: {start_date: date, end_date: date, user_id}});
+    const before_shift_users_user = {...shift_users[date][user_id]};
+    const after_shift_users = formed_shift_users(result_shift_users);
+    shift_users[date][user_id] = after_shift_users[date][user_id];
+    setShiftUsers(shift_users);
+    setTimestamps({...timestamps, [date]: {...timestamps[date], [user_id]: new Date()}});
 
-    const new_shift_users_dest = formed_shift_users_dest_date(new_shift_users[date]);
+    const new_shift_users_dest = formed_shift_users_dest_date(shift_users[date]);
     setShiftUsersDest({...shift_users_dest, [date]: new_shift_users_dest});
-
-    return true;
   };
 
   const onDropShiftUser = (date: string, user: UserType, shift_user: ShiftUserType) => () => {
@@ -275,6 +270,7 @@ const ShiftMain: React.FC<Props> = props => {
                            dest_dated_values={dest_dated_values}
                            area_ids={area_ids}
                            onFormSelected={onFormSelected}
+                           timestamps={timestamps}
             />
         )
       }
@@ -313,7 +309,7 @@ const ShiftMain: React.FC<Props> = props => {
                          shift_users_user={shift_users[selected.date][selected.user_id]}
                          dests={dests}
                          onClose={onFormClose}
-                         mergeShiftUsers={mergeShiftUsers}
+                         changeShiftUsersUser={changeShiftUsersUser}
           />
         )
       }
