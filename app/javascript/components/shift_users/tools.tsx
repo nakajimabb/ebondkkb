@@ -116,15 +116,32 @@ export const shift_users_user_text = (shift_users: ShiftUserType[],
   return Object.values(texts).join('/');
 };
 
+export const assignablePeriodType = (shift_users_user: ShiftUsersUserType, night): string | null => {
+  const shift_users = active_shift_users_user(shift_users_user);
+  if(shift_users) {
+    const result = vacantPeriodType(shift_users, night);
+    if(result) return result;
+
+    const shift_user = shift_users.find(s => s.roster_type === 'at_work' && !s.dest_id);
+    if(shift_user) {
+      if(night || shift_user.period_type !== 'night') {
+        return shift_user.period_type;
+      }
+    }
+  }
+};
+
 export const vacantPeriodType = (shift_users: ShiftUserType[], night): string | null => {
-  const period_types = shift_users.map(s => s.period_type);
-  if(period_types.includes('full')) {
-    if(night && !period_types.includes('night')) return 'night';
-  } else {
-    if(!period_types.includes('am') && !period_types.includes('pm')) return 'full';
-    if(!period_types.includes('am')) return 'am';
-    if(!period_types.includes('pm')) return 'pm';
-    if(night && !period_types.includes('night')) return 'night';
+  if(shift_users) {
+    const period_types = shift_users.map(s => s.period_type);
+    if(period_types.includes('full')) {
+      if(night && !period_types.includes('night')) return 'night';
+    } else {
+      if(!period_types.includes('am') && !period_types.includes('pm')) return 'full';
+      if(!period_types.includes('am')) return 'am';
+      if(!period_types.includes('pm')) return 'pm';
+      if(night && !period_types.includes('night')) return 'night';
+    }
   }
 };
 
@@ -162,14 +179,10 @@ export const setObject = (obj, value, ...keys) => {
   }
 };
 
-export const getTimestamp = (timestamps, date, user_id) => {
-  if(timestamps.hasOwnProperty(date)) {
-    if(timestamps[date].hasOwnProperty(user_id)) {
-      return timestamps[date][user_id];
-    } else {
-      return timestamps[date].timestamp;
-    }
-  } else {
-    return null;
+export const getUserTimestamp = (timestamps, date, user_id) => {
+  if(timestamps.users.hasOwnProperty(date) && timestamps.users[date].hasOwnProperty(user_id)) {
+    return timestamps.users[date][user_id];
+  } else if(timestamps.overall.hasOwnProperty(date)) {
+    return timestamps.overall[date];
   }
 };

@@ -15,7 +15,9 @@ import {
   ShiftUsersDestType,
   ShiftUsersDateDestType,
   ShiftUsersDateUserType,
-  sortByPeriodType, collect_shift_users
+  sortByPeriodType,
+  collect_shift_users,
+  active_shift_users_user,
 } from './tools';
 import axios from "axios";
 
@@ -46,7 +48,7 @@ const ShiftMain: React.FC<Props> = props => {
   const [area_ids, setAreaIds] = useState([]);
   const [cur_date, setCurDate] = useState('');
   const [selected, setSelected] = useState({date: null, user_id: null});
-  const [timestamps, setTimestamps] = useState({});
+  const [timestamps, setTimestamps] = useState({overall: {}, users: {}, dests: {}});
 
   const job_type_options = [{label: '薬剤師', value: 'pharmacist'}, {label: '事務員', value: 'office_worker'}];
   const shift_type_options = [{label: '人別', value: 'user_week'}, {label: '店別', value: 'shop_week'}, {label: '日別', value: 'shop_daily'}];
@@ -157,9 +159,9 @@ const ShiftMain: React.FC<Props> = props => {
 
     setCurDate(params.start_date);
 
-    let new_timestamps = {};
+    let new_timestamps = {overall: {}, users: {}, dests: {}};
     for(const date of dates) {
-      new_timestamps[date] = {timestamp: new Date()};
+      new_timestamps.overall[date] = new Date();
     }
     setTimestamps(new_timestamps);
   };
@@ -187,17 +189,73 @@ const ShiftMain: React.FC<Props> = props => {
 
   const changeShiftUsersUser = async (date: string, user_id: number, new_shift_users: ShiftUserType[]) => {
     const post_url = `${env.API_ORIGIN}/api/shift_users/save_shift_users`;
-    const result = await axios.post(post_url, {shift_users: new_shift_users});
+    await axios.post(post_url, {shift_users: new_shift_users});
     const get_url = `${env.API_ORIGIN}/api/shift_users/get_shift_users.json`;
     const {data: {shift_users: result_shift_users}} = await axios.get(get_url, {params: {start_date: date, end_date: date, user_id}});
     const before_shift_users_user = {...shift_users[date][user_id]};
     const after_shift_users = formed_shift_users(result_shift_users);
     shift_users[date][user_id] = after_shift_users[date][user_id];
     setShiftUsers(shift_users);
-    setTimestamps({...timestamps, [date]: {...timestamps[date], [user_id]: new Date()}});
+    const new_timestamps = {...timestamps.users[date], [user_id]: new Date()};
+    setTimestamps({...timestamps, users: {...timestamps.users, [date]: new_timestamps}});
 
-    const new_shift_users_dest = formed_shift_users_dest_date(shift_users[date]);
-    setShiftUsersDest({...shift_users_dest, [date]: new_shift_users_dest});
+    shift_users_dest[date] = changeShiftUsersDests(date, before_shift_users_user, after_shift_users[date][user_id], shift_users_dest[date]);
+    setShiftUsersDest(shift_users_dest);
+  };
+
+  const changeShiftUsersDests = (date: string,
+                                 before_shift_users_user: ShiftUsersUserType,
+                                 after_shift_users_user: ShiftUsersUserType,
+                                 shift_users_dest) => {
+    const before_shift_users = active_shift_users_user(before_shift_users_user).filter(s => !!s.dest_id);
+    const after_shift_users  = active_shift_users_user(after_shift_users_user).filter(s => !!s.dest_id);
+
+    let disappeared_shift_users = [];
+    let added_shift_users = [];
+    let other_shift_users = [];
+
+    before_shift_users.forEach(bs => {
+      const as = after_shift_users.find(as => as.id === bs.id);
+      if(as) {
+        other_shift_users.push(as);
+      } else {
+        disappeared_shift_users.push(bs);
+      }
+    });
+    after_shift_users.forEach(as => {
+      const bs = before_shift_users.find(bs => as.id === bs.id);
+      if(!bs) {
+        added_shift_users.push(as);
+      }
+    });
+
+    const before_dest_ids = before_shift_users.map(s => s.dest_id);
+    const after_dest_ids = after_shift_users.map(s => s.dest_id);
+    const dest_ids = Array.from(new Set(before_dest_ids.concat(after_dest_ids)));
+
+    dest_ids.forEach(dest_id => {
+      shift_users_dest[dest_id] = shift_users_dest[dest_id] || [];
+      disappeared_shift_users.forEach(ds => {
+        const i = shift_users_dest[dest_id].findIndex(s => s.id === ds.id);
+        if(i >= 0) shift_users_dest[dest_id].splice(i, 1);
+      });
+      added_shift_users.forEach(as => {
+        if(as.dest_id === dest_id) {
+          shift_users_dest[dest_id].push(as);
+        }
+      });
+      other_shift_users.forEach(os => {
+        // 行き先変更(当店舗から他店舗に移動)
+        const i1 = shift_users_dest[dest_id].findIndex(s => s.id === os.id && dest_id !== os.dest_id);
+        if(i1 >= 0) shift_users_dest[dest_id].splice(i1, 1);
+        // 行き先変更(他店舗から当店舗に移動)
+        if(os.dest_id === dest_id) {
+          const i2 = shift_users_dest[dest_id].findIndex(s => s.id === os.id);
+          if(i2 === -1) shift_users_dest[dest_id].push(os);
+        }
+      });
+    });
+    return shift_users_dest;
   };
 
   const onDropShiftUser = (date: string, user: UserType, shift_user: ShiftUserType) => () => {

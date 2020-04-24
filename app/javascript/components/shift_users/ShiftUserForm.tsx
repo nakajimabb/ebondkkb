@@ -144,6 +144,7 @@ const ShiftUserForm: React.FC<Props> = ({date, user, shift_users_user, dests, on
       await changeShiftUsersUser(date, user.id, new_shift_users);
       onClose();
     } catch({response}) {
+      console.log({response});
       const errors = response?.data?.errors || ['エラーが発生しました。'];
       setErrors(errors);
     }
@@ -154,11 +155,10 @@ const ShiftUserForm: React.FC<Props> = ({date, user, shift_users_user, dests, on
       <DialogTitle onClose={onClose}>{ title }</DialogTitle>
       <DialogContent>
         <Alert open={errors.length > 0} severity={"danger"} >
-          { errors.map(error => (
-            <>
+          { errors.map((error, index) => (
+            <div key={index}>
               { error }
-              <br />
-            </>
+            </div>
           )) }
         </Alert>
         <ShiftUserFields title="基本設計" shift_users={shift_users.weekly} dests={dests} onNew={onNew('weekly')} onChange={onChange} />

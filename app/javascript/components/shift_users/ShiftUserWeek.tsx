@@ -1,6 +1,6 @@
 import React from 'react';
 import clsx from 'clsx';
-import { active_shift_users_user, UserType, DestType, ShiftUserType, ShiftUsersUserType, ShiftUsersDateUserType, getTimestamp } from './tools';
+import { active_shift_users_user, UserType, DestType, ShiftUserType, ShiftUsersUserType, ShiftUsersDateUserType, getUserTimestamp } from './tools';
 import { user_name_with_code } from '../../tools/name_with_code';
 import './styles.css';
 
@@ -76,9 +76,9 @@ const UserFrame = React.memo(MuiUserFrame, ({timestamps: prev_timestamps, date: 
   if(prev_date !== next_date || prev_user.id !== next_user.id) {
     return false;
   } else {
-    const prev_timestamp = getTimestamp(prev_timestamps, prev_date, prev_user.id);
-    const next_timestamp = getTimestamp(next_timestamps, next_date, next_user.id);
-    return prev_timestamp == next_timestamp;
+    const prev_timestamp = getUserTimestamp(prev_timestamps, prev_date, prev_user.id);
+    const next_timestamp = getUserTimestamp(next_timestamps, next_date, next_user.id);
+    return prev_timestamp === next_timestamp;
   }
 });
 

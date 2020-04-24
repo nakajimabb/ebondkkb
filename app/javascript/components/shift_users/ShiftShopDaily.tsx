@@ -9,6 +9,7 @@ import {
   ShiftUsersUserType,
   active_shift_users_user,
   shift_users_user_text,
+  assignablePeriodType,
 } from './tools';
 import Backend from 'react-dnd-html5-backend'
 import clsx from "clsx";
@@ -87,37 +88,20 @@ const DestFrame: React.FC<DestFrameProps> = ({date, dest, users, shift_users_des
 };
 
 
-interface UnassignedProps {
-  date: string;
+interface UnassignedContentProps {
   user: UserType;
   shift_users_user: ShiftUsersUserType;
   dests: Map<number, DestType>;
-  onDropped: (date: string, user: UserType, shift_user: ShiftUserType) => () => void;
-  hidden: boolean;
+  isDragging: boolean,
+  drag?: any,
 }
 
-const Unassigned: React.FC<UnassignedProps> = ({date, user, shift_users_user, dests, onDropped, hidden}) => {
-
-  const [{ isDragging }, drag] = useDrag({
-    item: { name: user, type: 'unassigned' },
-    canDrag: !hidden,
-    end: (item: {name: UserType}, monitor) => {
-      const dropResult = monitor.getDropResult();
-      if (item && dropResult) {
-        onDropped(date, item.name, dropResult.name)();
-      }
-    },
-    collect: (monitor) => ({
-      isDragging: monitor.isDragging(),
-    }),
-  });
-
+const UnassignedContent: React.FC<UnassignedContentProps> = ({user, shift_users_user, dests, isDragging, drag}) => {
   const shift_users = active_shift_users_user(shift_users_user);
   if(!shift_users) return null;
 
   const text  = shift_users_user_text(shift_users, dests, false);
   const proc_type = shift_users[0].proc_type;
-
   const opacity = isDragging ? 0.4 : 1;
 
   return (
@@ -130,6 +114,37 @@ const Unassigned: React.FC<UnassignedProps> = ({date, user, shift_users_user, de
       </div>
     </div>
   );
+};
+
+interface UnassignedProps {
+  date: string;
+  user: UserType;
+  shift_users_user: ShiftUsersUserType;
+  dests: Map<number, DestType>;
+  onDropped: (date: string, user: UserType, shift_user: ShiftUserType) => () => void;
+  hidden: boolean;
+}
+
+const Unassigned: React.FC<UnassignedProps> = ({date, user, shift_users_user, dests, onDropped, hidden}) => {
+  const assignable = assignablePeriodType(shift_users_user, false);
+  if(!assignable) {
+    return <UnassignedContent user={user} shift_users_user={shift_users_user} dests={dests} isDragging={false} />
+  }
+
+  const [{ isDragging }, drag] = useDrag({
+    item: { name: user, type: 'unassigned' },
+    canDrag: !hidden || !!assignablePeriodType(shift_users_user, false),
+    end: (item: {name: UserType}, monitor) => {
+      const dropResult = monitor.getDropResult();
+      if (item && dropResult) {
+        onDropped(date, item.name, dropResult.name)();
+      }
+    },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  });
+  return <UnassignedContent user={user} shift_users_user={shift_users_user} dests={dests} isDragging={isDragging} drag={drag} />
 };
 
 
