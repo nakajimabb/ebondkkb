@@ -2,6 +2,7 @@ class Kkb < ApplicationRecord
   belongs_to :kkb_category
   belongs_to :posted_by, class_name: 'User', foreign_key: :posted_by_id
   has_many :kkb_users, dependent: :destroy
+  accepts_nested_attributes_for :kkb_users, allow_destroy: true
   has_many :users, through: :kkb_users
   has_many :kkb_groups, dependent: :destroy
   has_many :groups, through: :kkb_groups

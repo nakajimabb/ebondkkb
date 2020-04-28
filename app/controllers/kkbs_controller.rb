@@ -1,15 +1,17 @@
 class KkbsController < ApplicationController
-  before_action :set_kkb, only: [:show, :edit, :update, :destroy]
+  before_action :set_kkb, only: [:show, :edit, :update, :destroy, :kkb_users]
 
   def index
-    base_query = Kkb.eager_load(:users).eager_load(groups: :users)
+    base_query = Kkb.all
     if params[:kkb_category_id].present?
       base_query = base_query.where(kkb_category_id: params[:kkb_category_id])
     end
     kkbs = base_query.where(open: true)
     kkbs = kkbs.or(base_query.where(posted_by_id: current_user.id))
-    kkbs = kkbs.or(base_query.where(users: {id: current_user.id}))
-    kkbs = kkbs.or(base_query.where(groups: {group_users: {user_id: current_user.id}}))
+    kkb_users = KkbUser.where(user_id: current_user.id).select(:kkb_id).distinct
+    kkb_groups = KkbGroup.eager_load(group: :users).where(group: {users: {id: current_user.id}}).select(:kkb_id).distinct
+    kkb_ids = (kkb_users.pluck(:kkb_id) + kkb_groups.pluck(:kkb_id)).uniq
+    kkbs = kkbs.or(base_query.where(id: kkb_ids))
 
     @kkbs = kkbs.order(updated_at: :desc).page(params[:page]).per(60)
   end
@@ -69,6 +71,21 @@ class KkbsController < ApplicationController
     end
   end
 
+  def kkb_users
+    result = @kkb.users.map do |kkb_user|
+      {
+          id: kkb_user.id,
+          user_id: kkb_user.user_id,
+          permission: kkb_user.permission,
+          _destroy: kkb_user._destroy,
+          _modify: kkb_user.changed?,
+          user_name: kkb_user.user&.name_with_code,
+          error: kkb_user.errors.full_messages.join(',')
+      }
+    end
+    render json: result
+  end
+
   private
 
   # Use callbacks to share common setup or constraints between actions.
@@ -78,6 +95,6 @@ class KkbsController < ApplicationController
 
   # Only allow a list of trusted parameters through.
   def kkb_params
-    params.require(:kkb).permit(Kkb::REGISTRABLE_ATTRIBUTES)
+    params.require(:kkb).permit(Kkb::REGISTRABLE_ATTRIBUTES + [kkb_users_attributes: KkbUser::REGISTRABLE_ATTRIBUTES])
   end
 end

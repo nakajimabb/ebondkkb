@@ -1,11 +1,29 @@
 <div class="card card-outline card-primary">
   <div class="card-header">
-    <h3 class="card-title text-xs">
+    <h3 class="card-title text-sm">
       <%= "#{sprintf("%d", @kkb.id)} #{@kkb.title}" %>
     </h3>
   </div>
-  <div class="card-body text-xs">
-    <%= simple_format(@kkb.content) %>
+  <div class="card-body" style="padding: 0.25rem 1.25rem;">
+    <div style="margin-bottom: 10px;">
+      <% users = @kkb.users.order(permission: :desc) %>
+      <% groups = @kkb.groups.order(permission: :desc) %>
+      <% users.each do |user| %>
+      <div class="text-xs" style="display: inline-block; margin-right: 10px;">
+        <i class="fas fa-user"></i>
+        <%= user.name %>
+      </div>
+      <% end %>
+      <% groups.each do |group| %>
+      <div class="text-xs" style="display: inline-block; margin-right: 10px;">
+        <i class="fas fa-users"></i>
+        <%= group.name %>
+      </div>
+      <% end %>
+    </div>
+    <div class="text-xs">
+      <%= simple_format(@kkb.content) %>
+    </div>
   </div>
 </div>
 
