@@ -176,6 +176,53 @@ scratch. This page gets rid of all links and provides the needed markup only.
                with font-awesome or any other icon font library -->
           <li class="nav-item has-treeview">
             <a href="#" class="nav-link">
+              <i class="nav-icon fas fa-th-large"></i>
+              <p>
+                KKB板
+                <i class="right fas fa-angle-left"></i>
+              </p>
+            </a>
+            <ul class="nav nav-treeview">
+              <% kkb_categories = KkbCategory.where(parent_id: nil).order(:rank) %>
+              <li class="nav-item">
+                <%= link_to kkbs_path, class: 'nav-link' do %>
+                  <i class="far fa-circle nav-icon"></i>
+                  すべての板
+                <% end %>
+              </li>
+              <% kkb_categories.each do |kkb_category| %>
+                <li class="nav-item has-treeview">
+                  <div class="nav-link">
+                    <%= link_to kkbs_path(kkb_category_id: kkb_category.id) do %>
+                      <i class="fas fa-folder nav-icon"></i>
+                      <%= kkb_category.name %>
+                    <% end %>
+                    <%= link_to new_kkb_path(kkb_category_id: kkb_category.id), remote: true do %>
+                      <i class="fas fa-plus-circle nav-icon new_kkb"></i>
+                    <% end %>
+                  </div>
+                  <% kkb_sub_categories = KkbCategory.where(parent_id: kkb_category.id).order(:rank) %>
+                  <ul class="nav nav-treeview">
+                    <% kkb_sub_categories.each do |sub_category| %>
+                      <li class="nav-item">
+                        <div class="nav-link">
+                          <%= link_to kkbs_path(kkb_category_id: sub_category.id) do %>
+                            <i class="far fa-circle nav-icon"></i>
+                            <%= sub_category.name %>
+                          <% end %>
+                          <%= link_to new_kkb_path(kkb_category_id: sub_category.id), remote: true do %>
+                            <i class="fas fa-plus-circle nav-icon new_kkb"></i>
+                          <% end %>
+                        </div>
+                      </li>
+                    <% end %>
+                  </ul>
+                </li>
+              <% end %>
+            </ul>
+          </li>
+          <li class="nav-item has-treeview">
+            <a href="#" class="nav-link">
               <i class="nav-icon fas fa-calendar-alt"></i>
               <p>
                 シフト関連
