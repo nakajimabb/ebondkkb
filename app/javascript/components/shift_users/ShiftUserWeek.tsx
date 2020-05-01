@@ -1,7 +1,8 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import clsx from 'clsx';
-import { active_shift_users_user, UserType, DestType, ShiftUserType, ShiftUsersUserType, ShiftUsersDateUserType, getUserTimestamp } from './tools';
+import { active_shift_users_user, UserType, DestType, ShiftUserType, ShiftUsersUserType, getUserTimestamp } from './tools';
 import { user_name_with_code } from '../../tools/name_with_code';
+import AppContext from './AppContext';
 import './styles.css';
 
 
@@ -83,19 +84,13 @@ const UserFrame = React.memo(MuiUserFrame, ({timestamps: prev_timestamps, date: 
 });
 
 interface Props {
-  dates: string[];
-  shift_users: ShiftUsersDateUserType;
-  users: Map<number, UserType>;
-  dests: Map<number, DestType>;
-  user_dated_values: {};
-  dest_dated_values: {};
   area_ids: number[];
   onFormSelected: (date: string, user_id: number) => () => void;
-  timestamps: {}
 }
 
 const ShiftUserWeek: React.FC<Props> = (props) => {
-  const {dates, shift_users, users, dests, user_dated_values, dest_dated_values, area_ids, onFormSelected, timestamps} = props;
+  const {area_ids, onFormSelected} = props;
+  const {dates, shift_users, users, dests, user_dated_values, dest_dated_values, timestamps} = useContext(AppContext);
 
   const visibleUser = (dest: {id: number}, area_ids: number[]): boolean => {
     const dated_value = user_dated_values[dest.id] && user_dated_values[dest.id]['area_id'];

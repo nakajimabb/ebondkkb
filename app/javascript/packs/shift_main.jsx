@@ -2,11 +2,14 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { csrfToken } from '@rails/ujs';
 import axios from 'axios';
+import { AppContextProvider } from '../components/shift_users/AppContext'
 import ShiftMain from '../components/shift_users/ShiftMain'
 
 document.addEventListener('DOMContentLoaded', () => {
   ReactDOM.render(
-    <ShiftMain />,
+    (<AppContextProvider>
+      <ShiftMain />
+    </AppContextProvider>),
     document.body.querySelector('#react_root'),
   )
 });

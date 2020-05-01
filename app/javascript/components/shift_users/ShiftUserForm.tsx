@@ -1,10 +1,11 @@
-import React, { useState, FormEvent } from 'react';
-import { UserType, DestType, ShiftUserType, ShiftUsersUserType, vacantPeriodType, sortByPeriodType, collect_shift_users } from './tools';
+import React, {useState, FormEvent, useContext} from 'react';
+import { UserType, DestType, ShiftUserType, vacantPeriodType, sortByPeriodType, collect_shift_users } from './tools';
 import Select from '../Select';
 import SelectDest from '../SelectDest';
 import Alert from '../Alert';
 import { Dialog, DialogTitle, DialogContent, DialogActions } from '../Dialog/index';
 import { user_name_with_code } from '../../tools/name_with_code';
+import AppContext from './AppContext';
 
 
 interface ShiftUserInputProps {
@@ -96,17 +97,16 @@ const ShiftUserFields: React.FC<ShiftUserFieldsProps> = ({title, shift_users, de
 
 interface Props {
   date: string;
-  user: UserType;
-  shift_users_user?: ShiftUsersUserType;
-  dests: Map<number, DestType>;
+  user_id: number;
   onClose: (e?: FormEvent) => void;
-  changeShiftUsersUser: (date: string, user_id: number, new_shift_users: ShiftUserType[]) => void;
 }
 
-const ShiftUserForm: React.FC<Props> = ({date, user, shift_users_user, dests, onClose, changeShiftUsersUser}) => {
-  const title = `${date} ${user_name_with_code(user)}`;
-  const [shift_users, setShiftUsers] = useState({...shift_users_user});
+const ShiftUserForm: React.FC<Props> = ({date, user_id, onClose}) => {
+  const {shift_users, users, dests, timestamps, changeShiftUsersUser} = useContext(AppContext);
+  const [shift_users_user, setShiftUsersUser] = useState({...shift_users[date][user_id]});
   const [errors, setErrors] = useState([]);
+  const user = users.get(user_id);
+  const title = `${date} ${user_name_with_code(user)}`;
 
   const onChange = (index, shift_user, name) => (e) => {
     let new_shift_user;
@@ -121,26 +121,26 @@ const ShiftUserForm: React.FC<Props> = ({date, user, shift_users_user, dests, on
     }
     new_shift_user._modify = true;
 
-    let shift_users_array = shift_users[shift_user.proc_type].map((s, i) => (i === index) ? new_shift_user : s);
-    const new_shift_users = {...shift_users, [shift_user.proc_type]: shift_users_array };
-    setShiftUsers(new_shift_users);
+    let shift_users_array = shift_users_user[shift_user.proc_type].map((s, i) => (i === index) ? new_shift_user : s);
+    const new_shift_users = {...shift_users_user, [shift_user.proc_type]: shift_users_array };
+    setShiftUsersUser(new_shift_users);
   };
 
   const onNew = (proc_type) => (e) => {
     const max_size = (proc_type === 'daily') ? 3 : 2;
-    if(shift_users[proc_type].length >= max_size) return;
+    if(shift_users_user[proc_type].length >= max_size) return;
 
-    const period_type = vacantPeriodType(shift_users[proc_type], proc_type === 'daily');
+    const period_type = vacantPeriodType(shift_users_user[proc_type], proc_type === 'daily');
     if(!period_type) return;
 
     const new_shift_user = {dated_on: date, period_type, proc_type, user_id: user.id, roster_type: 'at_work', _modify: true};
-    const new_shift_users = {...shift_users, [proc_type]: sortByPeriodType([...shift_users[proc_type], new_shift_user])};
-    setShiftUsers(new_shift_users);
+    const new_shift_users = {...shift_users_user, [proc_type]: sortByPeriodType([...shift_users_user[proc_type], new_shift_user])};
+    setShiftUsersUser(new_shift_users);
   };
 
   const onSave = async () => {
     try{
-      const new_shift_users = collect_shift_users(shift_users);
+      const new_shift_users = collect_shift_users(shift_users_user);
       await changeShiftUsersUser(date, user.id, new_shift_users);
       onClose();
     } catch({response}) {
@@ -161,10 +161,10 @@ const ShiftUserForm: React.FC<Props> = ({date, user, shift_users_user, dests, on
             </div>
           )) }
         </Alert>
-        <ShiftUserFields title="基本設計" shift_users={shift_users.weekly} dests={dests} onNew={onNew('weekly')} onChange={onChange} />
-        <ShiftUserFields title="カスタム" shift_users={shift_users.custom} dests={dests} onChange={onChange} />
-        <ShiftUserFields title="祝日処理" shift_users={shift_users.rest_week} dests={dests} onChange={onChange} />
-        <ShiftUserFields title="日別" shift_users={shift_users.daily} dests={dests} onNew={onNew('daily')} onChange={onChange} />
+        <ShiftUserFields title="基本設計" shift_users={shift_users_user.weekly} dests={dests} onNew={onNew('weekly')} onChange={onChange} />
+        <ShiftUserFields title="カスタム" shift_users={shift_users_user.custom} dests={dests} onChange={onChange} />
+        <ShiftUserFields title="祝日処理" shift_users={shift_users_user.rest_week} dests={dests} onChange={onChange} />
+        <ShiftUserFields title="日別" shift_users={shift_users_user.daily} dests={dests} onNew={onNew('daily')} onChange={onChange} />
       </DialogContent>
       <DialogActions>
         <button type="button" className="btn btn-default" data-dismiss="modal" onClick={onClose}>ｷｬﾝｾﾙ</button>

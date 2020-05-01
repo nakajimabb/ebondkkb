@@ -1,7 +1,8 @@
-import React from 'react';
-import { UserType, DestType, ShiftUserType, ShiftUsersDestType, ShiftUsersDateDestType } from './tools';
+import React, {useContext} from 'react';
+import { UserType, DestType, ShiftUserType } from './tools';
 import { full_name, name_with_code } from '../../tools/name_with_code';
 import './styles.css';
+import AppContext from "./AppContext";
 
 
 interface DestFrameProps {
@@ -26,17 +27,11 @@ const FrameDate: React.FC<DestFrameProps> = ({date, dest, users, shift_users_des
 
 
 interface Props {
-  dates: string[];
-  shift_users_dest: ShiftUsersDateDestType;
-  users: Map<number, UserType>;
-  dests: Map<number, DestType>;
-  user_dated_values: {};
-  dest_dated_values: {};
   area_ids: number[];
 }
 
-const ShiftShopWeek: React.FC<Props> = (props) => {
-  const {dates, shift_users_dest, users, dests, user_dated_values, dest_dated_values, area_ids} = props;
+const ShiftShopWeek: React.FC<Props> = ({area_ids}) => {
+  const {dates, shift_users_dest, users, dests, dest_dated_values, timestamps} = useContext(AppContext);
 
   const visibleDest = (dest: {id: number}, area_ids: number[]): boolean => {
     const dated_value = dest_dated_values[dest.id] && dest_dated_values[dest.id]['area_id'];

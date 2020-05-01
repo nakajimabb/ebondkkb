@@ -1,11 +1,10 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useContext} from 'react';
 import { DndProvider, useDrag, useDrop } from 'react-dnd'
 import {
   RegionType,
   UserType,
   DestType,
   ShiftUserType,
-  ShiftUsersDestType,
   ShiftUsersUserType,
   active_shift_users_user,
   shift_users_user_text,
@@ -17,6 +16,7 @@ import { str } from '../../tools/str';
 import { user_name_with_code, name_with_code, full_name } from '../../tools/name_with_code';
 import Select from '../Select';
 import './styles.css';
+import AppContext from "./AppContext";
 
 
 const styles = {
@@ -215,20 +215,14 @@ const UnassignedUsers: React.FC<UnassignedUsersProps> = ({date,
 
 interface Props {
   date: string;
-  shift_users: ShiftUsersUserType;
-  shift_users_dest: ShiftUsersDestType;
-  users: Map<number, UserType>;
-  dests: Map<number, DestType>;
-  user_dated_values: {};
-  dest_dated_values: {};
-  area_ids: number[];
   regions: RegionType[];
+  area_ids: number[];
   onFormSelected: (date: string, user_id: number) => () => void;
-  onDropped: (date: string, user: UserType, shift_user: ShiftUserType) => () => void;
 }
 
 const ShiftShopDaily: React.FC<Props> = (props) => {
-  const {date, shift_users, shift_users_dest, users, dests, user_dated_values, dest_dated_values, regions, area_ids, onFormSelected, onDropped} = props;
+  const {date, regions, area_ids, onFormSelected} = props;
+  const {shift_users, shift_users_dest, users, dests, user_dated_values, dest_dated_values, timestamps, onDropShiftUser} = useContext(AppContext);
 
   const visibleDest = (dest: {id: number}, area_ids: number[]): boolean => {
     const dated_value = dest_dated_values[dest.id] && dest_dated_values[dest.id]['area_id'];
@@ -252,7 +246,7 @@ const ShiftShopDaily: React.FC<Props> = (props) => {
                         <DestFrame date={date}
                                    dest={dest}
                                    users={users}
-                                   shift_users_dest={shift_users_dest[dest.id]}
+                                   shift_users_dest={shift_users_dest[date][dest.id]}
                                    hidden={hidden}
                         />
                 }
@@ -263,13 +257,13 @@ const ShiftShopDaily: React.FC<Props> = (props) => {
         </div>
         <div className="shift-unassigned">
           <UnassignedUsers date={date}
-                           shift_users={shift_users}
+                           shift_users={shift_users[date]}
                            users={users}
                            dests={dests}
                            user_dated_values={user_dated_values}
                            regions={regions}
                            onFormSelected={onFormSelected}
-                           onDropped={onDropped}
+                           onDropped={onDropShiftUser}
           />
 
         </div>
