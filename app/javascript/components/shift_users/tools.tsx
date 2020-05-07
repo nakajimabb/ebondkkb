@@ -186,3 +186,11 @@ export const getUserTimestamp = (timestamps, date, user_id) => {
     return timestamps.overall[date];
   }
 };
+
+export const getDestTimestamp = (timestamps, date, dest_id) => {
+  if(timestamps.dests.hasOwnProperty(date) && timestamps.dests[date].hasOwnProperty(dest_id)) {
+    return timestamps.dests[date][dest_id];
+  } else if(timestamps.overall.hasOwnProperty(date)) {
+    return timestamps.overall[date];
+  }
+};

@@ -9,6 +9,8 @@ import {
   active_shift_users_user,
   shift_users_user_text,
   assignablePeriodType,
+  getUserTimestamp,
+  getDestTimestamp,
 } from './tools';
 import Backend from 'react-dnd-html5-backend'
 import clsx from "clsx";
@@ -65,14 +67,13 @@ const DestFrameUser: React.FC<DestFrameUserProps> = ({user, shift_user, hidden})
 
 
 interface DestFrameProps {
-  date: string;
-  dest: DestType;
-  users: Map<number, UserType>;
   shift_users_dest: ShiftUserType[];
+  users: Map<number, UserType>;
   hidden: boolean;
+  timestamp: Date;
 }
 
-const DestFrame: React.FC<DestFrameProps> = ({date, dest, users, shift_users_dest, hidden}) => {
+const MuiDestFrame: React.FC<DestFrameProps> = ({shift_users_dest, users, hidden, timestamp}) => {
   if(!shift_users_dest) return null;
 
   return (
@@ -87,8 +88,12 @@ const DestFrame: React.FC<DestFrameProps> = ({date, dest, users, shift_users_des
   )
 };
 
+const DestFrame = React.memo(MuiDestFrame, ({timestamp: prev_timestamp},
+                                            {timestamp: next_timestamp}) => {
+  return prev_timestamp === next_timestamp;
+});
 
-interface UnassignedContentProps {
+interface UserFrameContentProps {
   user: UserType;
   shift_users_user: ShiftUsersUserType;
   dests: Map<number, DestType>;
@@ -96,7 +101,7 @@ interface UnassignedContentProps {
   drag?: any,
 }
 
-const UnassignedContent: React.FC<UnassignedContentProps> = ({user, shift_users_user, dests, isDragging, drag}) => {
+const UserFrameContent: React.FC<UserFrameContentProps> = ({user, shift_users_user, dests, isDragging, drag}) => {
   const shift_users = active_shift_users_user(shift_users_user);
   if(!shift_users) return null;
 
@@ -116,19 +121,21 @@ const UnassignedContent: React.FC<UnassignedContentProps> = ({user, shift_users_
   );
 };
 
-interface UnassignedProps {
+interface UserFrameProps {
   date: string;
   user: UserType;
-  shift_users_user: ShiftUsersUserType;
+  shift_users_user?: ShiftUsersUserType;
   dests: Map<number, DestType>;
-  onDropped: (date: string, user: UserType, shift_user: ShiftUserType) => () => void;
   hidden: boolean;
+  timestamp: Date;
+  onDrop: (date: string, user: UserType, shift_user: ShiftUserType) => () => void;
 }
 
-const Unassigned: React.FC<UnassignedProps> = ({date, user, shift_users_user, dests, onDropped, hidden}) => {
+const MuiUserFrame: React.FC<UserFrameProps> = ({date, user, shift_users_user, dests, hidden, onDrop, timestamp}) => {
+
   const assignable = assignablePeriodType(shift_users_user, false);
   if(!assignable) {
-    return <UnassignedContent user={user} shift_users_user={shift_users_user} dests={dests} isDragging={false} />
+    return <UserFrameContent user={user} shift_users_user={shift_users_user} dests={dests} isDragging={false} />
   }
 
   const [{ isDragging }, drag] = useDrag({
@@ -137,52 +144,30 @@ const Unassigned: React.FC<UnassignedProps> = ({date, user, shift_users_user, de
     end: (item: {name: UserType}, monitor) => {
       const dropResult = monitor.getDropResult();
       if (item && dropResult) {
-        onDropped(date, item.name, dropResult.name)();
+        onDrop(date, item.name, dropResult.name)();
       }
     },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
   });
-  return <UnassignedContent user={user} shift_users_user={shift_users_user} dests={dests} isDragging={isDragging} drag={drag} />
+  return <UserFrameContent user={user} shift_users_user={shift_users_user} dests={dests} isDragging={isDragging} drag={drag} />
 };
 
+const UserFrame = React.memo(MuiUserFrame, ({timestamp: prev_timestamp},
+                                            {timestamp: next_timestamp}) => {
+  return prev_timestamp === next_timestamp;
+});
 
-interface UnassignedUsersProps {
+interface UserFramesProps {
   date: string;
-  shift_users: ShiftUsersUserType;
-  users: Map<number, UserType>;
-  dests: Map<number, DestType>;
-  user_dated_values: {};
   regions: RegionType[];
+  area_ids: number[];
   onFormSelected: (date: string, user_id: number) => () => void;
-  onDropped: (date: string, user: UserType, shift_user: ShiftUserType) => () => void;
 }
 
-const UnassignedUsers: React.FC<UnassignedUsersProps> = ({date,
-                                                           shift_users,
-                                                           users,
-                                                           dests,
-                                                           user_dated_values,
-                                                           regions,
-                                                           onFormSelected,
-                                                           onDropped
-                                                         }) => {
-  const [area_ids, setAreaIds] = useState([]);
-  const region_options = regions.map(region => ({label: region.name, value: str(region.area_ids)}));
-
-  useEffect(() => {
-    if(regions.length > 0) {
-      setAreaIds(regions[0].area_ids)
-    } else {
-      setAreaIds([]);
-    }
-  }, [regions]);
-
-  const onChangeRegion = (e) => {
-    const new_area_ids = e.target.value.split(',').map(area_id => +area_id);
-    setAreaIds(new_area_ids);
-  };
+const UserFrames: React.FC<UserFramesProps> = ({date, area_ids, onFormSelected}) => {
+  const {shift_users, users, dests, user_dated_values, onDropShiftUser, timestamps} = useContext(AppContext);
 
   const visibleUser = (dest: {id: number}, area_ids: number[]): boolean => {
     const dated_value = user_dated_values[dest.id] && user_dated_values[dest.id]['area_id'];
@@ -193,23 +178,26 @@ const UnassignedUsers: React.FC<UnassignedUsersProps> = ({date,
   };
 
   return (
-    <>
-      <div className="input-group input-group-sm mb-2">
-        <Select className="form-control mr-1" style={styles.w100} name="area_ids" options={region_options} value={area_ids.join(',')} onChange={onChangeRegion} />
-      </div>
-      <div>
-          { Array.from(users.values()).map((user, index) => {
-            const hidden = !visibleUser(user, area_ids);
-            const class_name: string = hidden ? 'd-none' : '';
-            return (
-              <div key={index} className={class_name} onDoubleClick={onFormSelected(date, user.id)}>
-                <Unassigned date={date} user={user} shift_users_user={shift_users[user.id]} dests={dests} onDropped={onDropped} hidden={hidden} />
-              </div>
-            );
-            })
-          }
-      </div>
-    </>
+    <div>
+        { Array.from(users.values()).map((user, index) => {
+          const hidden = !visibleUser(user, area_ids);
+          const class_name: string = hidden ? 'd-none' : '';
+          const timestamp = getUserTimestamp(timestamps, date, user.id);
+          return (
+            <div key={index} className={class_name} onDoubleClick={onFormSelected(date, user.id)}>
+              <UserFrame date={date}
+                          user={user}
+                          shift_users_user={shift_users[date][user.id]}
+                          dests={dests}
+                          hidden={hidden}
+                          timestamp={timestamp}
+                          onDrop={onDropShiftUser}
+              />
+            </div>
+          );
+          })
+        }
+    </div>
   )
 };
 
@@ -222,7 +210,24 @@ interface Props {
 
 const ShiftShopDaily: React.FC<Props> = (props) => {
   const {date, regions, area_ids, onFormSelected} = props;
-  const {shift_users, shift_users_dest, users, dests, user_dated_values, dest_dated_values, timestamps, onDropShiftUser} = useContext(AppContext);
+  const {shift_users_dest, users, dests, dest_dated_values, timestamps} = useContext(AppContext);
+  const [user_area_ids, setUserAreaIds] = useState([]);
+  const region_options = regions.map(region => ({label: region.name, value: str(region.area_ids)}));
+
+  const onChangeRegion = (e) => {
+    const new_area_ids = e.target.value.split(',').map(area_id => +area_id);
+    setUserAreaIds(new_area_ids);
+  };
+
+
+  useEffect(() => {
+    if(regions.length > 0) {
+      setUserAreaIds(regions[0].area_ids)
+    } else {
+      setUserAreaIds([]);
+    }
+  }, [regions]);
+
 
   const visibleDest = (dest: {id: number}, area_ids: number[]): boolean => {
     const dated_value = dest_dated_values[dest.id] && dest_dated_values[dest.id]['area_id'];
@@ -239,16 +244,16 @@ const ShiftShopDaily: React.FC<Props> = (props) => {
           { Array.from(dests.values()).map((dest, index) => {
             const hidden = !visibleDest(dest, area_ids);
             const class_name: string = hidden ? 'd-none' : 'dest-row';
+            const timestamp = getDestTimestamp(timestamps, date, dest.id);
             return (
               <div key={index} className={class_name}>
                 <div className="border dest-frame">{ name_with_code(dest) }</div>
                 {
-                        <DestFrame date={date}
-                                   dest={dest}
-                                   users={users}
-                                   shift_users_dest={shift_users_dest[date][dest.id]}
-                                   hidden={hidden}
-                        />
+                  <DestFrame shift_users_dest={shift_users_dest[date][dest.id]}
+                             users={users}
+                             hidden={hidden}
+                             timestamp={timestamp}
+                  />
                 }
               </div>
             );
@@ -256,14 +261,19 @@ const ShiftShopDaily: React.FC<Props> = (props) => {
           }
         </div>
         <div className="shift-unassigned">
-          <UnassignedUsers date={date}
-                           shift_users={shift_users[date]}
-                           users={users}
-                           dests={dests}
-                           user_dated_values={user_dated_values}
+          <div className="input-group input-group-sm mb-2">
+            <Select className="form-control mr-1"
+                    style={styles.w100}
+                    name="area_ids"
+                    options={region_options}
+                    value={user_area_ids.join(',')}
+                    onChange={onChangeRegion}
+            />
+          </div>
+          <UserFrames date={date}
                            regions={regions}
+                           area_ids={user_area_ids}
                            onFormSelected={onFormSelected}
-                           onDropped={onDropShiftUser}
           />
 
         </div>

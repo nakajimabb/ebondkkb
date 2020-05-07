@@ -90,7 +90,7 @@ interface Props {
 
 const ShiftUserWeek: React.FC<Props> = (props) => {
   const {area_ids, onFormSelected} = props;
-  const {dates, shift_users, users, dests, user_dated_values, dest_dated_values, timestamps} = useContext(AppContext);
+  const {dates, shift_users, users, dests, user_dated_values, timestamps} = useContext(AppContext);
 
   const visibleUser = (dest: {id: number}, area_ids: number[]): boolean => {
     const dated_value = user_dated_values[dest.id] && user_dated_values[dest.id]['area_id'];
