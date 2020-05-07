@@ -168,7 +168,7 @@ export const AppContextProvider: React.FC = ({children}) => {
     setShiftUsers(shift_users);
     setShiftUsersDest(shift_users_dest);
     shift_users_dest[date] = changeShiftUsersDests(date, before_shift_users_user, after_shift_users[date][user_id], shift_users_dest[date]);
-    // update timestamp
+    // update timestamps
     const now = new Date();
     const users_timestamps = {...timestamps.users[date], [user_id]: now};
     const dest_ids1 = active_shift_users_user(before_shift_users_user).map(s => s.dest_id);
@@ -262,9 +262,16 @@ export const AppContextProvider: React.FC = ({children}) => {
       const new_shift_users_dest = formed_shift_users_dest_date(new_shift_users);
       setShiftUsersDest({...shift_users_dest, [date]: new_shift_users_dest});
 
+      // update timestamps
       const now = new Date();
-      const new_timestamps = {...timestamps.users[date], [user.id]: now, [shift_user.user_id]: now};
-      setTimestamps({...timestamps, users: {...timestamps.users, [date]: new_timestamps}});
+      const users_timestamps = {...timestamps.users[date], [user.id]: now, [shift_user.user_id]: now};
+      const dest_ids1 = shift_users_drag_user.map(s => s.dest_id);
+      const dest_ids2 = shift_users_drop_user.map(s => s.dest_id);
+      const dest_ids = Array.from(new Set(dest_ids1.concat(dest_ids2)));
+      const dests_timestamps = {...timestamps.dests[date]};
+      dest_ids.forEach(dest_id => dests_timestamps[dest_id] = now);
+      setTimestamps({...timestamps, users: {...timestamps.users, [date]: users_timestamps},
+        dests: {...timestamps.dests, [date]: dests_timestamps}});
     }
   };
 
