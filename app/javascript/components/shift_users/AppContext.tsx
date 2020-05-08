@@ -42,7 +42,8 @@ export const AppContextProvider: React.FC = ({children}) => {
   const [cur_date, setCurDate] = useState('');
   const [timestamps, setTimestamps] = useState({overall: {}, users: {}, dests: {}});
 
-  const loadShiftUsers = (params) => () => {
+  const loadShiftUsers = (params, setParams) => () => {
+    setParams({...params, loading: true});
     const url = `${env.API_ORIGIN}/api/shift_users/get_shift_users.json`;
     axios.get(url, {params: {...params, dests: true, user_dated_values: true, dest_dated_values: true}}).then(({data}) => {
       const new_dates = [];
@@ -54,6 +55,9 @@ export const AppContextProvider: React.FC = ({children}) => {
       setDates(new_dates);
       setCurDate(params.start_date);
       setState(new_dates, data);
+      setParams({...params, loading: false});
+    }).catch(error => {
+      setParams({...params, loading: false});
     })
   };
 

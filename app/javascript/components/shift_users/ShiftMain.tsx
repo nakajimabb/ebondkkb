@@ -5,6 +5,7 @@ import ShiftUserWeek from './ShiftUserWeek';
 import ShiftShopWeek from './ShiftShopWeek';
 import ShiftShopDaily from './ShiftShopDaily';
 import ShiftUserForm from '../shift_users/ShiftUserForm';
+import CircularProgress from '../CircularProgress'
 import AppContext from './AppContext';
 import axios from "axios";
 
@@ -22,7 +23,11 @@ const styles = {
 
 const ShiftMain: React.FC = () => {
   const {dates, cur_date, setCurDate, loadShiftUsers} = useContext(AppContext);
-  const [params, setParams] = useState({start_date: '2020-03-03', end_date: '2020-03-03', job_type: 'pharmacist', shift_type: 'user_week'});
+  const [params, setParams] = useState({start_date: '2020-03-03',
+                                        end_date: '2020-03-03',
+                                        job_type: 'pharmacist',
+                                        shift_type: 'user_week',
+                                        loading: false});
   const [regions, setRegions] = useState([]);
   const [area_ids, setAreaIds] = useState([]);
   const [selected, setSelected] = useState({date: null, user_id: null});
@@ -67,7 +72,7 @@ const ShiftMain: React.FC = () => {
         <input className="form-control mr-1" type="date" name="start_date" style={styles.w140} value={params.start_date} onChange={onChange} />
         <input className="form-control mr-1" type="date" name="end_date" style={styles.w140} value={params.end_date} onChange={onChange} />
         <Select className="form-control mr-1" style={styles.w100} name="job_type" options={job_type_options} value={params.job_type} onChange={onChange} />
-        <button className="btn btn-sm btn-outline-primary" onClick={loadShiftUsers(params)} >読込</button>
+        <button className="btn btn-sm btn-outline-primary" onClick={loadShiftUsers(params, setParams)} >読込</button>
       </div>
       <div className="input-group input-group-sm mb-2">
         <Select className="form-control mr-1" style={styles.w100} name="shift_type" options={shift_type_options} value={params.shift_type} onChange={onChange} />
@@ -85,20 +90,23 @@ const ShiftMain: React.FC = () => {
         }
       </div>
       {
-        (params.shift_type === 'user_week') && (
+        params.loading && <CircularProgress />
+      }
+      {
+        (!params.loading && params.shift_type === 'user_week') && (
             <ShiftUserWeek area_ids={area_ids}
                            onFormSelected={onFormSelected}
             />
         )
       }
       {
-        (params.shift_type === 'shop_week') && (
+        (!params.loading && params.shift_type === 'shop_week') && (
           <ShiftShopWeek area_ids={area_ids}
           />
         )
       }
       {
-        (params.shift_type === 'shop_daily') && cur_date && (
+        (!params.loading && params.shift_type === 'shop_daily') && cur_date && (
           <ShiftShopDaily  date={cur_date}
                            regions={regions}
                            area_ids={area_ids}

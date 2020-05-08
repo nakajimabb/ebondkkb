@@ -41,6 +41,9 @@ const ShiftShopWeek: React.FC<Props> = ({area_ids}) => {
     return false;
   };
 
+  if(dates.length === 0)
+    return null;
+
   return (
     <table className="table table-sm">
       <thead>

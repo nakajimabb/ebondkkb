@@ -100,6 +100,9 @@ const ShiftUserWeek: React.FC<Props> = (props) => {
     return false;
   };
 
+  if(dates.length === 0)
+    return null;
+
   return (
     <table className="table table-sm table-bordered">
       <thead>
