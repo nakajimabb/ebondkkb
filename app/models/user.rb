@@ -66,14 +66,26 @@ class User < ApplicationRecord
     # TODO: user_dated_value に suspend がない場合も考慮する必要がある
     params[:suspend] = suspend if !suspend.nil? && !params.has_key?(:suspend)
     users = all
-    params.each do |code, value|
-      joined = "dated_values_#{code}"
-      value = UserDatedValue.enum_value(code, value)
-      code = UserDatedValue.codes[code]
-      users = users.joins("join user_dated_values #{joined} on users.id = #{joined}.user_id")
-      users = users.where("#{joined}.dated_on = (select max(dated_on) from user_dated_values where dated_on <= ? and user_id = users.id and code = ?)", date, code)
-      users = users.where(joined => {code: code, value: value})
-      users
+    if date.is_a?(Range)
+      params.each do |code, value|
+        joined = "dated_values_#{code}"
+        value = UserDatedValue.enum_value(code, value)
+        code = UserDatedValue.codes[code]
+        users = users.joins("join user_dated_values #{joined} on users.id = #{joined}.user_id")
+        users = users.where("#{joined}.dated_on between (select max(dated_on) from user_dated_values where dated_on <= ? and user_id = users.id and code = ?) and ?", date.min, code, date.max)
+        users = users.where(joined => {code: code, value: value})
+        users
+      end
+    else
+      params.each do |code, value|
+        joined = "dated_values_#{code}"
+        value = UserDatedValue.enum_value(code, value)
+        code = UserDatedValue.codes[code]
+        users = users.joins("join user_dated_values #{joined} on users.id = #{joined}.user_id")
+        users = users.where("#{joined}.dated_on = (select max(dated_on) from user_dated_values where dated_on <= ? and user_id = users.id and code = ?)", date, code)
+        users = users.where(joined => {code: code, value: value})
+        users
+      end
     end
     users.group(:id)
   end
