@@ -11,6 +11,6 @@ class CreateShiftUsers < ActiveRecord::Migration[6.0]
 
       t.timestamps
     end
-    add_index :shift_users, [:dated_on, :user_id, :period_type, :proc_type], unique: true, name: 'index_shift_user_date_user_period_proc'
+    add_index :shift_users, [:user_id, :dated_on, :period_type, :proc_type], unique: true, name: 'index_shift_user_user_date_period_proc'
   end
 end

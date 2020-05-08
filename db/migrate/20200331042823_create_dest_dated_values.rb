@@ -8,6 +8,6 @@ class CreateDestDatedValues < ActiveRecord::Migration[6.0]
 
       t.timestamps
     end
-    add_index :dest_dated_values, [:dest_id, :code, :dated_on], unique: true
+    add_index :dest_dated_values, [:dest_id, :dated_on, :code], unique: true
   end
 end

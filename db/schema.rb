@@ -39,7 +39,7 @@ ActiveRecord::Schema.define(version: 2020_04_09_011422) do
     t.integer "value"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["dest_id", "code", "dated_on"], name: "index_dest_dated_values_on_dest_id_and_code_and_dated_on", unique: true
+    t.index ["dest_id", "dated_on", "code"], name: "index_dest_dated_values_on_dest_id_and_dated_on_and_code", unique: true
     t.index ["dest_id"], name: "index_dest_dated_values_on_dest_id"
   end
 
@@ -172,8 +172,8 @@ ActiveRecord::Schema.define(version: 2020_04_09_011422) do
     t.integer "frame_type", default: 1, null: false
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["dated_on", "user_id", "period_type", "proc_type"], name: "index_shift_user_date_user_period_proc", unique: true
     t.index ["dest_id"], name: "index_shift_users_on_dest_id"
+    t.index ["user_id", "dated_on", "period_type", "proc_type"], name: "index_shift_user_user_date_period_proc", unique: true
     t.index ["user_id"], name: "index_shift_users_on_user_id"
   end
 
@@ -184,7 +184,7 @@ ActiveRecord::Schema.define(version: 2020_04_09_011422) do
     t.integer "value"
     t.datetime "created_at", precision: 6, null: false
     t.datetime "updated_at", precision: 6, null: false
-    t.index ["user_id", "code", "dated_on"], name: "index_user_dated_values_on_user_id_and_code_and_dated_on", unique: true
+    t.index ["user_id", "dated_on", "code"], name: "index_user_dated_values_on_user_id_and_dated_on_and_code", unique: true
     t.index ["user_id"], name: "index_user_dated_values_on_user_id"
   end
 

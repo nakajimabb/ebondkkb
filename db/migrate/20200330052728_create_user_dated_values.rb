@@ -8,6 +8,6 @@ class CreateUserDatedValues < ActiveRecord::Migration[6.0]
 
       t.timestamps
     end
-    add_index :user_dated_values, [:user_id, :code, :dated_on], unique: true
+    add_index :user_dated_values, [:user_id, :dated_on, :code], unique: true
   end
 end
