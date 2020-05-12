@@ -350,6 +350,13 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <!-- Default to the left -->
     <strong>Copyright &copy; 2014-2019 <a href="https://adminlte.io">AdminLTE.io</a>.</strong> All rights reserved.
   </footer>
+  <script>
+    const nodes = document.querySelectorAll(`a[href="${location.pathname}"]`);
+    nodes.forEach((node) => {
+      node.classList.add('active');
+      node.closest('.has-treeview').classList.add('menu-open');
+    });
+  </script>
 </div>
 <!-- ./wrapper -->
 </body>
