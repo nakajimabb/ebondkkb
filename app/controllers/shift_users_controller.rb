@@ -5,25 +5,26 @@ class ShiftUsersController < ApplicationController
       end_date = Date.parse(params[:end_date])
 
       @span = start_date..end_date
-      job_type = params[:job_type]
-      dated_value = {job_type: job_type}
-      @shift_users = {}
-      # 職制が火曜日に登録されている必要がある(不正確だが高速)
-      @users = User.active.with_dated_values(start_date, {job_type: job_type}).order(:shift_number2)
+      if params[:user_id]
+        @users = User.where(id: params[:user_id])
+      else
+        job_type = params[:job_type]
+        dated_value = {job_type: job_type}
+        @users = User.active.with_dated_values(@span, dated_value).order(:shift_number2)
+      end
       user_ids = @users.pluck(:id)
+      @shift_users = {}
       @shift_users[:weekly] = ShiftUser.shift_users_weekly(@span, user_ids)
       @shift_users[:holiday] = ShiftUser.shift_users_holiday(@span).where(user_id: user_ids)
       @shift_users[:custom] = ShiftUser.where(proc_type: :custom, user_id: user_ids, dated_on: @span)
       @shift_users[:rest_week] = ShiftUser.where(proc_type: :rest_week, user_id: user_ids, dated_on: @span)
       @shift_users[:daily] = ShiftUser.where(proc_type: :daily, user_id: user_ids, dated_on: @span)
-      # # 職制が火曜日に登録されている必要がない(正確だが低速)
+      # # 以下のクエリでは退職者が含まれてしまう。
       # @shift_users[:weekly] = ShiftUser.shift_users_weekly(@span, nil, dated_value)
       # @shift_users[:holiday] = ShiftUser.shift_users_holiday(@span).with_dated_values(dated_value)
       # @shift_users[:custom] = ShiftUser.where(proc_type: :custom, dated_on: @span).with_dated_values(dated_value)
       # @shift_users[:rest_week] = ShiftUser.where(proc_type: :rest_week, dated_on: @span).with_dated_values(dated_value)
       # @shift_users[:daily] = ShiftUser.where(proc_type: :daily, dated_on: @span).with_dated_values(dated_value)
-      # user_ids = @shift_users[:weekly].values.reduce([]){ |arr, shift_users| arr + shift_users.pluck(:user_id) }.uniq
-      # @users = User.where(id: user_ids).order(:shift_number2)
 
       if params[:dests]
         @dests = Dest.active.order(:shift_number2)

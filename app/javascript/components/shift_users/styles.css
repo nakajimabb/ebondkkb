@@ -6,6 +6,8 @@
     flex-shrink: 1;
     margin: 10px;
     user-select: none;
+    overflow: scroll;
+    height:calc(100vh - 250px);
 }
 
 .shift-unassigned {
@@ -13,6 +15,8 @@
     width: 350px;
     margin: 10px;
     user-select: none;
+    overflow: scroll;
+    height:calc(100vh - 280px);
 }
 
 .dest-row {

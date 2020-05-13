@@ -8,6 +8,7 @@ import {
   ShiftUsersUserType,
   active_shift_users_user,
   shift_users_user_text,
+  unchangedFromWeekly,
   assignablePeriodType,
   getUserTimestamp,
   getDestTimestamp,
@@ -163,16 +164,33 @@ interface UserFramesProps {
   date: string;
   regions: RegionType[];
   area_ids: number[];
+  attend_type: string;
   onFormSelected: (date: string, user_id: number) => () => void;
 }
 
-const UserFrames: React.FC<UserFramesProps> = ({date, area_ids, onFormSelected}) => {
+const UserFrames: React.FC<UserFramesProps> = ({date, area_ids, attend_type, onFormSelected}) => {
   const {shift_users, users, dests, user_dated_values, onDropShiftUser, timestamps} = useContext(AppContext);
 
-  const visibleUser = (dest: {id: number}, area_ids: number[]): boolean => {
-    const dated_value = user_dated_values[dest.id] && user_dated_values[dest.id]['area_id'];
-    if(dated_value && area_ids.indexOf(dated_value.value) !== -1) {
-      return true;
+  const visibleUser = (user: {id: number}): boolean => {
+    const area_dated_value = user_dated_values[user.id] && user_dated_values[user.id]['area_id'];
+    if(area_dated_value && area_ids.indexOf(area_dated_value.value) !== -1) {
+      const shift_users_user = active_shift_users_user(shift_users[date][user.id]);
+      if(shift_users_user) {
+        if(attend_type === 'at_work') {
+          const table_type = user_dated_values[user.id].table_type?.to_enum;
+          console.log({table_type});
+          return (shift_users_user.some(s => s.roster_type === 'at_work') && (
+              table_type === 'table_b' || !unchangedFromWeekly(shift_users[date][user.id])
+          )
+          );
+        } else if(attend_type === 'unassigned') {
+          return shift_users_user.some(s => s.roster_type === 'at_work' && !s.dest_id);
+        } else if(attend_type === 'at_work_all') {
+          return shift_users_user.some(s => s.roster_type === 'at_work');
+        } else if(attend_type === 'holiday') {
+          return shift_users_user.some(s => s.roster_type === 'legal_holiday' || s.roster_type === 'paid_holiday');
+        }
+      }
     }
     return false;
   };
@@ -180,7 +198,7 @@ const UserFrames: React.FC<UserFramesProps> = ({date, area_ids, onFormSelected})
   return (
     <div>
         { Array.from(users.values()).map((user, index) => {
-          const hidden = !visibleUser(user, area_ids);
+          const hidden = !visibleUser(user);
           const class_name: string = hidden ? 'd-none' : '';
           const timestamp = getUserTimestamp(timestamps, date, user.id);
           return (
@@ -209,16 +227,24 @@ interface Props {
 }
 
 const ShiftShopDaily: React.FC<Props> = (props) => {
+  const [attend_type, setAttendType] = useState('at_work');
   const {date, regions, area_ids, onFormSelected} = props;
   const {shift_users_dest, users, dests, dest_dated_values, timestamps} = useContext(AppContext);
   const [user_area_ids, setUserAreaIds] = useState([]);
   const region_options = regions.map(region => ({label: region.name, value: str(region.area_ids)}));
+  const attend_type_options = [{label: '出勤', value: 'at_work'},
+                               {label: '出勤(空)', value: 'unassigned'},
+                               {label: '出勤(全)', value: 'at_work_all'},
+                               {label: '休日', value: 'holiday'}];
 
   const onChangeRegion = (e) => {
     const new_area_ids = e.target.value.split(',').map(area_id => +area_id);
     setUserAreaIds(new_area_ids);
   };
 
+  const onChangeAttendType = (e) => {
+    setAttendType(e.target.value);
+  };
 
   useEffect(() => {
     if(regions.length > 0) {
@@ -260,7 +286,7 @@ const ShiftShopDaily: React.FC<Props> = (props) => {
             })
           }
         </div>
-        <div className="shift-unassigned">
+        <div>
           <div className="input-group input-group-sm mb-2">
             <Select className="form-control mr-1"
                     style={styles.w100}
@@ -269,13 +295,22 @@ const ShiftShopDaily: React.FC<Props> = (props) => {
                     value={user_area_ids.join(',')}
                     onChange={onChangeRegion}
             />
+            <Select className="form-control mr-1"
+                    style={styles.w100}
+                    name="attend_type"
+                    options={attend_type_options}
+                    value={attend_type}
+                    onChange={onChangeAttendType}
+            />
           </div>
-          <UserFrames date={date}
-                           regions={regions}
-                           area_ids={user_area_ids}
-                           onFormSelected={onFormSelected}
-          />
-
+          <div className="shift-unassigned">
+            <UserFrames date={date}
+                        regions={regions}
+                        attend_type={attend_type}
+                        area_ids={user_area_ids}
+                        onFormSelected={onFormSelected}
+            />
+          </div>
         </div>
       </DndProvider>
     </div>

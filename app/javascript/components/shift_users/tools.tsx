@@ -75,6 +75,19 @@ export const active_shift_users_user = (shift_users_user: ShiftUsersUserType): S
   }
 };
 
+export const alikeShiftUser = (s1: ShiftUserType, s2: ShiftUserType,
+                                    columns=['roster_type', 'period_type', 'user_id', 'dest_id']): boolean => {
+  return columns.every(c => s1[c] === s2[c]);
+};
+
+export const unchangedFromWeekly = (shift_users_user: ShiftUsersUserType): boolean => {
+  if(shift_users_user) {
+    const shift_users = active_shift_users_user(shift_users_user);
+    if(shift_users_user.weekly.length !== shift_users.length) return false;
+    return shift_users.some((s,i) => alikeShiftUser(s, shift_users_user.weekly[i]))
+  }
+};
+
 export const active_shift_users = (date: string,
                                    user_id: number,
                                    shift_users: ShiftUsersDateUserType

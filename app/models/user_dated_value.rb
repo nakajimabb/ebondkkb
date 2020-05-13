@@ -31,6 +31,14 @@ class UserDatedValue < ApplicationRecord
     end
   end
 
+  def to_enum
+    if ENUM_VALUES.has_key?(code.to_sym)
+      ENUM_VALUES[code.to_sym].invert[value.to_i]
+    else
+      value
+    end
+  end
+
   def value_i18n
     value_sym = ENUM_VALUES[code.to_sym].invert[value]
     I18n.t("enum_values.user_dated_value.#{code}.#{value_sym}")

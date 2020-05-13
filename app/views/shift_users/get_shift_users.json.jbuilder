@@ -29,7 +29,7 @@ if @dests
 end
 if @user_dated_values
   json.user_dated_values do
-    json.array! @user_dated_values, "id", "user_id", "dated_on", "code", "value"
+    json.array! @user_dated_values, "id", "user_id", "dated_on", "code", "value", "to_enum"
   end
 end
 if @dest_dated_values
