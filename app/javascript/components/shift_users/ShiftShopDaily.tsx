@@ -178,7 +178,6 @@ const UserFrames: React.FC<UserFramesProps> = ({date, area_ids, attend_type, onF
       if(shift_users_user) {
         if(attend_type === 'at_work') {
           const table_type = user_dated_values[user.id].table_type?.to_enum;
-          console.log({table_type});
           return (shift_users_user.some(s => s.roster_type === 'at_work') && (
               table_type === 'table_b' || !unchangedFromWeekly(shift_users[date][user.id])
           )

@@ -221,16 +221,16 @@ export const AppContextProvider: React.FC = ({children}) => {
         if(i >= 0) shift_users_dest[dest_id].splice(i, 1);
       });
       added_shift_users.forEach(as => {
-        if(as.dest_id === dest_id) {
+        if(as.dest_id === dest_id && as.roster_type === 'at_work') {
           shift_users_dest[dest_id].push(as);
         }
       });
       other_shift_users.forEach(os => {
         // 行き先変更(当店舗から他店舗に移動)
-        const i1 = shift_users_dest[dest_id].findIndex(s => s.id === os.id && dest_id !== os.dest_id);
+        const i1 = shift_users_dest[dest_id].findIndex(s => s.id === os.id && (dest_id !== os.dest_id || os.roster_type !== 'at_work'));
         if(i1 >= 0) shift_users_dest[dest_id].splice(i1, 1);
         // 行き先変更(他店舗から当店舗に移動)
-        if(os.dest_id === dest_id) {
+        if(os.dest_id === dest_id && os.roster_type === 'at_work') {
           const i2 = shift_users_dest[dest_id].findIndex(s => s.id === os.id);
           if(i2 === -1) shift_users_dest[dest_id].push(os);
         }
